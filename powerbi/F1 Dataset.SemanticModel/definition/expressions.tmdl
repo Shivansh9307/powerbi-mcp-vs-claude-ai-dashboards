@@ -1,0 +1,6 @@
+/// Folder containing the Ergast F1 CSV files. Change this to repoint every table to a new location (Home > Transform data > Edit parameters).
+expression 'F1 CSV Folder' = "C:\f1-evolution\data\raw" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: a831445f-ca90-4ef1-8698-1459764725dd
+
+	annotation PBI_ResultType = Text
+

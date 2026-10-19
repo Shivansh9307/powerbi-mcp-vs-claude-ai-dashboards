@@ -1,0 +1,27 @@
+/// Constructors whose names share a first word, shown as possible renames or successor teams. The source has no lineage field, so these are NOT merged anywhere in the model; this is a derived hint, not a fact.
+table 'Constructor Families'
+	lineageTag: 6ea3c34e-feb4-4ed3-9a4e-3bcff5b037c1
+
+	column Family
+		lineageTag: 502db728-2a19-4b3b-8bb9-83a96ad695ba
+		isNameInferred
+		sourceColumn: [Family]
+
+	column 'Constructor Ids'
+		lineageTag: 874685e5-e7fe-4cd3-9a21-9a9920882e8a
+		isNameInferred
+		sourceColumn: [Constructor Ids]
+
+	column Names
+		lineageTag: c6eaec67-bcb6-4146-8970-c2d54c031b16
+		isNameInferred
+		sourceColumn: [Names]
+
+	partition 'Constructor Families' = calculated
+		mode: import
+		source =
+				VAR _t = ADDCOLUMNS('Constructor', "@Family", LEFT('Constructor'[Constructor], FIND(" ", 'Constructor'[Constructor] & " ") - 1))
+				VAR _f = DISTINCT(SELECTCOLUMNS(_t, "@Family", [@Family]))
+				VAR _r = ADDCOLUMNS(_f, "@Ids", VAR _x = [@Family] RETURN COUNTROWS(FILTER(_t, [@Family] = _x)), "@Names", VAR _x = [@Family] RETURN CONCATENATEX(FILTER(_t, [@Family] = _x), [Constructor], ", ", [Constructor], ASC))
+				RETURN SELECTCOLUMNS(FILTER(_r, [@Ids] > 1 && NOT [@Family] IN {"Team", "Scuderia", "Equipe", "Racing"}), "Family", [@Family], "Constructor Ids", [@Ids], "Names", [@Names])
+

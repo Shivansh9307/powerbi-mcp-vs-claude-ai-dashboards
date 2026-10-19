@@ -1,0 +1,25 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=1500"]
+      - id: check-yaml
+      - id: end-of-file-fixer
+        exclude: ^powerbi/
+      - id: trailing-whitespace
+        exclude: ^(powerbi/|.*\.md$)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+      - id: ruff-format
+  - repo: local
+    hooks:
+      - id: pbip-lint
+        name: Lint the Power BI project (measures documented, no broken field references, no private paths)
+        entry: uv run f1evo pbip check powerbi
+        language: system
+        pass_filenames: false
+        files: ^powerbi/

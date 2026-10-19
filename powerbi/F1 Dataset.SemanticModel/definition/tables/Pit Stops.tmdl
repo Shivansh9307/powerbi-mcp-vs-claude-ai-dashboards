@@ -1,0 +1,217 @@
+/// Pit stop records from 2011 onwards. Grain: one row per driver per stop per race.
+table 'Pit Stops'
+	lineageTag: a5c83475-50a4-4f5a-aeb2-7489c3a3525a
+
+	/// Number of pit stops recorded. Pit stop data is available from 2011 onwards.
+	measure '# Pit Stops' = COUNTROWS('Pit Stops')
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 46da511b-2a73-4d0a-9632-5cc6f0eb07f5
+
+	/// Mean pit lane time in seconds, from pit entry to exit. Long stops during red flags skew this upward, so see Median Pit Stop Duration (s).
+	measure 'Average Pit Stop Duration (s)' = DIVIDE(AVERAGE('Pit Stops'[Pit Stop Duration (ms)]), 1000)
+		formatString: 0.000
+		displayFolder: Timing
+		lineageTag: 29aab904-dd85-4a4c-a22d-58f041a804b3
+
+	/// Median pit lane time in seconds. Preferred over the average because red-flag stops are extreme outliers.
+	measure 'Median Pit Stop Duration (s)' = DIVIDE(MEDIAN('Pit Stops'[Pit Stop Duration (ms)]), 1000)
+		formatString: 0.000
+		displayFolder: Timing
+		lineageTag: 6f912a98-5478-4d78-afc3-67d886c3764e
+
+	/// Shortest pit lane time in seconds within the current selection.
+	measure 'Fastest Pit Stop (s)' = DIVIDE(MIN('Pit Stops'[Pit Stop Duration (ms)]), 1000)
+		formatString: 0.000
+		displayFolder: Timing
+		lineageTag: 330aadb3-fb35-47e8-8c3e-08b37c129e01
+
+	/// Median time in the pit lane from entry to exit, over stops of 60 seconds or less. This is pit-lane time, not the stationary tyre change, which is not in the data.
+	measure 'Typical Pit Time (s)' = DIVIDE(CALCULATE(MEDIAN('Pit Stops'[Pit Stop Duration (ms)]), 'Pit Stops'[Pit Stop Duration (ms)] <= 60000), 1000)
+		formatString: 0.0
+		displayFolder: Pit lane
+		lineageTag: 4700e3b1-0f76-4352-b72c-02ce38af0b40
+
+	/// Stops longer than 60 seconds in the pit lane, such as repairs or red-flag stops. Left out of typical time.
+	measure 'Extended Stops' = CALCULATE(COUNTROWS('Pit Stops'), 'Pit Stops'[Pit Stop Duration (ms)] > 60000)
+		formatString: #,##0
+		displayFolder: Pit lane
+		lineageTag: 86a6bdca-c461-432d-b807-c9106214eaee
+
+	/// Starts in Grands Prix that have pit-stop records. Denominator for stops per car, so seasons without pit data do not dilute it.
+	measure 'Cars in Races With Pit Data' = CALCULATE([Starts], FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Pit Stops')) > 0))
+		formatString: #,##0
+		displayFolder: Pit lane
+		lineageTag: 13f9ae31-b816-4ff1-a545-1f38bde70cb8
+
+	/// Pit stops divided by cars that started, counted only in races with pit-stop records.
+	measure 'Stops per Car' = DIVIDE([# Pit Stops], [Cars in Races With Pit Data])
+		formatString: 0.00
+		displayFolder: Pit lane
+		lineageTag: 462a26b5-4068-4080-b775-953ee5e3f44b
+
+	/// First season in view with pit-stop records.
+	measure 'Pit First Season' = MINX('Pit Stops', RELATED('Race'[Season Year]))
+		formatString: 0
+		displayFolder: Pit lane
+		lineageTag: 90425f3c-7bde-4ac0-8019-23abdb377a2b
+
+	/// Seasons in view that have pit-stop records.
+	measure 'Pit Seasons in View' = COUNTROWS(FILTER(VALUES('Season'[Season]), CALCULATE(COUNTROWS('Pit Stops')) > 0))
+		formatString: 0
+		displayFolder: Pit lane
+		lineageTag: ab1ded8d-6844-4b97-95b3-e639c725a576
+
+	/// Scope indicator: how many seasons in view have pit-stop records, and a pointer to the fallback when none do.
+	measure 'Pit Scope Message' =
+			VAR _n = [Pit Seasons in View]
+			VAR _all = COUNTROWS(FILTER(VALUES('Season'[Season]), CALCULATE([# Races Held]) > 0))
+			RETURN IF(COALESCE(_n, 0) = 0, "No pit-stop records in these seasons. Pit stops are recorded from 1994, so the chart on the right shows how starts ended instead.", "Pit-stop records cover " & _n & " of " & _all & " seasons in view, from " & [Pit First Season] & ". Times are entry-to-exit pit-lane time, not the stationary stop.")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: b0bf248b-643e-4222-8224-c48f604bffd5
+
+	/// Rank of each constructor by typical pit-lane time (fastest first), only for constructors with at least 30 stops in view.
+	measure 'Constructor Pit Time Rank' = IF([# Pit Stops] >= 30, RANKX(FILTER(ALLSELECTED('Constructor'[Constructor]), [# Pit Stops] >= 30), [Typical Pit Time (s)], , ASC, Skip))
+		formatString: 0
+		isHidden
+		displayFolder: Helpers
+		lineageTag: 59ed9641-9892-4caf-81eb-e458a5492b84
+
+	column 'Race Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: bf3880ef-27fe-4eb9-b6af-357077e7814c
+		summarizeBy: none
+		sourceColumn: Race Id
+
+	column 'Driver Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2fca3bf3-b7ab-4e35-b049-a0ce12ae0e5d
+		summarizeBy: none
+		sourceColumn: Driver Id
+
+	/// Sequence of the stop for this driver in this race (1 = first stop).
+	column 'Stop Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: 43fa7179-ad07-494f-b227-41b3802da9d0
+		summarizeBy: none
+		sourceColumn: Stop Number
+
+	/// Lap on which the stop was made.
+	column 'Lap Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: 2a81d263-dacf-444f-9325-880b5a2a5a6e
+		summarizeBy: none
+		sourceColumn: Lap Number
+
+	/// Time spent in the pit lane in milliseconds, from pit entry to pit exit.
+	column 'Pit Stop Duration (ms)'
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: c9d60c4b-cc83-4a5f-9546-34cfe692c80e
+		summarizeBy: none
+		sourceColumn: Pit Stop Duration (ms)
+
+	/// Constructor the driver raced for in this Grand Prix, taken from the race result.
+	column 'Constructor Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3a0ed4f3-02eb-4e2e-af39-124a18d6261f
+		summarizeBy: none
+		sourceColumn: Constructor Id
+
+	/// Pit stops; Constructor Id comes from the race result of the same driver and race.
+	/// Time in the pit lane from entry to exit in seconds. This is not the stationary tyre-change time, which this dataset does not contain.
+	column 'Pit Lane Time (s)' = DIVIDE('Pit Stops'[Pit Stop Duration (ms)], 1000)
+		dataType: double
+		formatString: 0.0
+		lineageTag: bccfe1ac-974c-46ae-9fb2-8661e0719cff
+		summarizeBy: none
+
+	/// True for pit-lane times up to 60 seconds. Longer times (repairs, red flags) are reported as extended and left out of typical-time measures.
+	column 'Is Typical' = NOT ISBLANK('Pit Stops'[Pit Stop Duration (ms)]) && 'Pit Stops'[Pit Stop Duration (ms)] <= 60000
+		dataType: boolean
+		lineageTag: 1e3d4b8e-550b-4fc0-8991-bf70d31effdd
+		summarizeBy: none
+
+	/// Pit-lane time band for the distribution chart.
+	column 'Time Bucket' = SWITCH(TRUE(), ISBLANK('Pit Stops'[Pit Lane Time (s)]), BLANK(), 'Pit Stops'[Pit Lane Time (s)] < 18, "Under 18 s", 'Pit Stops'[Pit Lane Time (s)] < 20, "18-20 s", 'Pit Stops'[Pit Lane Time (s)] < 22, "20-22 s", 'Pit Stops'[Pit Lane Time (s)] < 24, "22-24 s", 'Pit Stops'[Pit Lane Time (s)] < 26, "24-26 s", 'Pit Stops'[Pit Lane Time (s)] < 30, "26-30 s", 'Pit Stops'[Pit Lane Time (s)] <= 60, "30-60 s", "Over 60 s")
+		dataType: string
+		lineageTag: 5e532edb-f261-4216-b3c7-7503d6d6bc21
+		summarizeBy: none
+		sortByColumn: 'Time Bucket Order'
+
+	/// Order of Time Bucket.
+	column 'Time Bucket Order' = SWITCH(TRUE(), ISBLANK('Pit Stops'[Pit Lane Time (s)]), BLANK(), 'Pit Stops'[Pit Lane Time (s)] < 18, 1, 'Pit Stops'[Pit Lane Time (s)] < 20, 2, 'Pit Stops'[Pit Lane Time (s)] < 22, 3, 'Pit Stops'[Pit Lane Time (s)] < 24, 4, 'Pit Stops'[Pit Lane Time (s)] < 26, 5, 'Pit Stops'[Pit Lane Time (s)] < 30, 6, 'Pit Stops'[Pit Lane Time (s)] <= 60, 7, 8)
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f2f4d75f-5b18-4c08-877f-c3a7ae504b59
+		summarizeBy: none
+
+	/// Stop lap as a share of the race distance (winner's laps), in tenths.
+	column 'Race Progress' =
+			VAR _laps = RELATED('Race'[Race Laps])
+			VAR _p = DIVIDE('Pit Stops'[Lap Number], _laps)
+			RETURN IF(ISBLANK(_p), BLANK(), IF(_p > 1, "Over 100%", SWITCH(TRUE(), _p <= 0.1, "0-10%", _p <= 0.2, "10-20%", _p <= 0.3, "20-30%", _p <= 0.4, "30-40%", _p <= 0.5, "40-50%", _p <= 0.6, "50-60%", _p <= 0.7, "60-70%", _p <= 0.8, "70-80%", _p <= 0.9, "80-90%", "90-100%")))
+		dataType: string
+		lineageTag: 3ebaf556-eff0-46b8-a135-0ead4e010885
+		summarizeBy: none
+		sortByColumn: 'Race Progress Order'
+
+	/// Order of Race Progress.
+	column 'Race Progress Order' =
+			VAR _laps = RELATED('Race'[Race Laps])
+			VAR _p = DIVIDE('Pit Stops'[Lap Number], _laps)
+			RETURN IF(ISBLANK(_p), BLANK(), IF(_p > 1, 11, MIN(10, ROUNDUP(_p * 10, 0))))
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 225f322e-1fc4-46d8-b5a3-17d2b2abeb5d
+		summarizeBy: none
+
+	/// Median typical pit-lane time of the same Grand Prix, for comparing one stop with its race.
+	column 'Race Median (s)' =
+			VAR _r = 'Pit Stops'[Race Id]
+			VAR _m = MEDIANX(FILTER('Pit Stops', 'Pit Stops'[Race Id] = _r && 'Pit Stops'[Pit Stop Duration (ms)] <= 60000), 'Pit Stops'[Pit Stop Duration (ms)])
+			RETURN CONVERT(_m / 1000, DOUBLE)
+		dataType: double
+		formatString: 0.0
+		lineageTag: d465a812-8a09-4b9a-bb1c-fdec0b5ea24f
+		summarizeBy: none
+
+	/// Pit-lane time minus the median typical pit-lane time of the same Grand Prix. Negative means faster than the race median; a very large negative gap can point to a data artefact.
+	column 'Gap to Race Median (s)' = IF(ISBLANK('Pit Stops'[Pit Lane Time (s)]) || ISBLANK('Pit Stops'[Race Median (s)]), BLANK(), 'Pit Stops'[Pit Lane Time (s)] - 'Pit Stops'[Race Median (s)])
+		dataType: double
+		formatString: +0.0;-0.0;0.0
+		lineageTag: 6557dc07-1550-434e-922d-6e430ac0aef0
+		summarizeBy: none
+
+	partition 'Pit Stops' = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\pit_stops.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  Cleaned = Table.ReplaceValue(Promoted, "\N", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				  Selected = Table.SelectColumns(Cleaned, {"raceId", "driverId", "stop", "lap", "milliseconds"}),
+				  Renamed = Table.RenameColumns(Selected, {{"raceId", "Race Id"}, {"driverId", "Driver Id"}, {"stop", "Stop Number"}, {"lap", "Lap Number"}, {"milliseconds", "Pit Stop Duration (ms)"}}),
+				  Typed = Table.TransformColumnTypes(Renamed, {{"Race Id", Int64.Type}, {"Driver Id", Int64.Type}, {"Stop Number", Int64.Type}, {"Lap Number", Int64.Type}, {"Pit Stop Duration (ms)", Int64.Type}}, "en-US"),
+				  TeamSource = Csv.Document(File.Contents(#"F1 CSV Folder" & "\results.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  TeamPromoted = Table.PromoteHeaders(TeamSource, [PromoteAllScalars=true]),
+				  TeamPairs = Table.Distinct(Table.TransformColumnTypes(Table.SelectColumns(TeamPromoted, {"raceId", "driverId", "constructorId"}), {{"raceId", Int64.Type}, {"driverId", Int64.Type}, {"constructorId", Int64.Type}}, "en-US"), {"raceId", "driverId"}),
+				  Joined = Table.NestedJoin(Typed, {"Race Id", "Driver Id"}, TeamPairs, {"raceId", "driverId"}, "Team", JoinKind.LeftOuter),
+				  Expanded = Table.ExpandTableColumn(Joined, "Team", {"constructorId"}, {"Constructor Id"})
+				in
+				  Expanded
+
+	annotation PBI_ResultType = Table
+

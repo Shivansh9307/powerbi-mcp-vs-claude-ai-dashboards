@@ -1,0 +1,28 @@
+{
+  "_comment": "Values the Power BI report shows and `f1evo` must reproduce from the raw CSVs. anchors = Overview KPIs; files = Data Quality page (raw rows, cells holding the \\N missing-value marker, rows repeating a business key).",
+  "anchors": {
+    "races": 1166,
+    "drivers": 790,
+    "constructors": 199,
+    "circuits": 78,
+    "wins": 1169,
+    "driver_titles": 76,
+    "constructor_titles": 68
+  },
+  "files": {
+    "circuits": {"rows": 78, "null_cells": 0, "duplicate_key_rows": 0},
+    "constructor_results": {"rows": 13052, "null_cells": 13035, "duplicate_key_rows": 0},
+    "constructor_standings": {"rows": 13818, "null_cells": 1, "duplicate_key_rows": 0},
+    "constructors": {"rows": 214, "null_cells": 0, "duplicate_key_rows": 0},
+    "driver_standings": {"rows": 35741, "null_cells": 13, "duplicate_key_rows": 0},
+    "drivers": {"rows": 865, "null_cells": 1559, "duplicate_key_rows": 0},
+    "lap_times": {"rows": 885381, "null_cells": 0, "duplicate_key_rows": 1979},
+    "pit_stops": {"rows": 22802, "null_cells": 6, "duplicate_key_rows": 0},
+    "qualifying": {"rows": 11342, "null_cells": 12349, "duplicate_key_rows": 0},
+    "races": {"rows": 1172, "null_cells": 11479, "duplicate_key_rows": 0},
+    "results": {"rows": 27612, "null_cells": 124661, "duplicate_key_rows": 91},
+    "seasons": {"rows": 77, "null_cells": 0, "duplicate_key_rows": 0},
+    "sprint_results": {"rows": 612, "null_cells": 532, "duplicate_key_rows": 0},
+    "status": {"rows": 141, "null_cells": 0, "duplicate_key_rows": 0}
+  }
+}

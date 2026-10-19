@@ -1,0 +1,92 @@
+/// Lap-by-lap timing from 1996 onwards. Grain: one row per driver per lap per race.
+table 'Lap Times'
+	lineageTag: 819c086f-0648-409c-88e2-65545dd85dae
+
+	/// Number of timed laps in the current selection. Lap timing is available from 1996 onwards.
+	measure '# Laps Recorded' = COUNTROWS('Lap Times')
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 68c888f0-512b-49fa-bcd4-51e3b43f839b
+
+	/// Mean lap time in seconds. Includes slow laps such as safety car and in/out laps, so compare within a single race for the most meaningful result.
+	measure 'Average Lap Time (s)' = DIVIDE(AVERAGE('Lap Times'[Lap Time (ms)]), 1000)
+		formatString: 0.000
+		displayFolder: Timing
+		lineageTag: 70a84e0d-01f6-404e-a6df-042348f4198e
+
+	/// Quickest single lap in seconds within the current selection.
+	measure 'Fastest Recorded Lap (s)' = DIVIDE(MIN('Lap Times'[Lap Time (ms)]), 1000)
+		formatString: 0.000
+		displayFolder: Timing
+		lineageTag: 7eaccdb8-159e-4d66-8283-54196fdb1720
+
+	column 'Race Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 55926806-78df-4ea9-9366-4e759dfe268d
+		summarizeBy: none
+		sourceColumn: Race Id
+
+	column 'Driver Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4da71475-8623-433e-8375-27573f2a5c71
+		summarizeBy: none
+		sourceColumn: Driver Id
+
+	column 'Lap Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: d69eee7d-92a0-4635-a560-15d1f75d8bd2
+		summarizeBy: none
+		sourceColumn: Lap Number
+
+	/// Driver's race position at the end of this lap.
+	column 'Running Position'
+		dataType: int64
+		formatString: 0
+		lineageTag: 00f21243-7ad8-459c-907c-2a9340f5f84b
+		summarizeBy: none
+		sourceColumn: Running Position
+
+	/// Lap time in milliseconds.
+	column 'Lap Time (ms)'
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: fc188ad5-e79e-48b2-9b5d-bba096e0097b
+		summarizeBy: none
+		sourceColumn: Lap Time (ms)
+
+	/// Constructor the driver raced for in this Grand Prix, taken from the race result.
+	column 'Constructor Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ec91f441-19c8-4145-927d-a82350ef691a
+		summarizeBy: none
+		sourceColumn: Constructor Id
+
+	partition 'Lap Times' = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\lap_times.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  Cleaned = Table.ReplaceValue(Promoted, "\N", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				  Selected = Table.SelectColumns(Cleaned, {"raceId", "driverId", "lap", "position", "milliseconds"}),
+				  Renamed = Table.RenameColumns(Selected, {{"raceId", "Race Id"}, {"driverId", "Driver Id"}, {"lap", "Lap Number"}, {"position", "Running Position"}, {"milliseconds", "Lap Time (ms)"}}),
+				  Typed = Table.TransformColumnTypes(Renamed, {{"Race Id", Int64.Type}, {"Driver Id", Int64.Type}, {"Lap Number", Int64.Type}, {"Running Position", Int64.Type}, {"Lap Time (ms)", Int64.Type}}, "en-US"),
+				  Deduped = Table.Distinct(Typed, {"Race Id", "Driver Id", "Lap Number"}),
+				  TeamSource = Csv.Document(File.Contents(#"F1 CSV Folder" & "\results.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  TeamPromoted = Table.PromoteHeaders(TeamSource, [PromoteAllScalars=true]),
+				  TeamPairs = Table.Distinct(Table.TransformColumnTypes(Table.SelectColumns(TeamPromoted, {"raceId", "driverId", "constructorId"}), {{"raceId", Int64.Type}, {"driverId", Int64.Type}, {"constructorId", Int64.Type}}, "en-US"), {"raceId", "driverId"}),
+				  Joined = Table.NestedJoin(Deduped, {"Race Id", "Driver Id"}, TeamPairs, {"raceId", "driverId"}, "Team", JoinKind.LeftOuter),
+				  Expanded = Table.ExpandTableColumn(Joined, "Team", {"constructorId"}, {"Constructor Id"})
+				in
+				  Expanded
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    name: Lint, type-check, test, lint the Power BI project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+      - run: uv run pytest --cov=f1evo --cov-report=term-missing
+      - name: Power BI project lint (fails on errors, lists warnings)
+        run: uv run f1evo pbip check powerbi --verbose
+
+  node:
+    name: Report generator syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: for f in tools/report-generator/gen/*.js tools/report-generator/model/*.js tools/audit/*.js artifact/src/*.js; do node --check "$f"; done

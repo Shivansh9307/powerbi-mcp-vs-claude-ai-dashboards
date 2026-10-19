@@ -1,0 +1,42 @@
+/// Formula 1 constructors (teams). Grain: one row per constructor.
+table Constructor
+	lineageTag: 1a0fc5dc-d3e2-47ba-9151-cd2ae76b5b3d
+
+	column 'Constructor Id'
+		dataType: int64
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: b4acf40a-1635-4a06-b268-45f00f12ea27
+		summarizeBy: none
+		sourceColumn: Constructor Id
+
+	/// Team name as registered with the FIA, e.g. McLaren.
+	column Constructor
+		dataType: string
+		lineageTag: 5df46503-2586-42bd-863f-58bc2d462878
+		summarizeBy: none
+		sourceColumn: Constructor
+
+	/// Nationality of the constructor.
+	column 'Constructor Nationality'
+		dataType: string
+		lineageTag: fcbd981b-3773-407f-9c9b-25ac2ac445d4
+		summarizeBy: none
+		sourceColumn: Constructor Nationality
+
+	partition Constructor = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\constructors.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  Cleaned = Table.ReplaceValue(Promoted, "\N", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				  Selected = Table.SelectColumns(Cleaned, {"constructorId", "name", "nationality"}),
+				  Renamed = Table.RenameColumns(Selected, {{"constructorId", "Constructor Id"}, {"name", "Constructor"}, {"nationality", "Constructor Nationality"}}),
+				  Typed = Table.TransformColumnTypes(Renamed, {{"Constructor Id", Int64.Type}, {"Constructor", type text}, {"Constructor Nationality", type text}}, "en-US")
+				in
+				  Typed
+
+	annotation PBI_ResultType = Table
+

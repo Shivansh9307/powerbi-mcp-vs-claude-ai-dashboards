@@ -1,0 +1,88 @@
+/// List of every table loaded in the model, used as the row set for the data-quality checks. Names only; every figure comes from measures.
+table 'DQ Tables'
+	lineageTag: e22e1f80-6ad5-4d04-8882-e610607e1010
+
+	/// Rows loaded in the model for the table in the row.
+	measure 'DQ Rows' = SWITCH(SELECTEDVALUE('DQ Tables'[Check Table]), "Season", COUNTROWS('Season'), "Circuit", COUNTROWS('Circuit'), "Constructor", COUNTROWS('Constructor'), "Driver", COUNTROWS('Driver'), "Finishing Status", COUNTROWS('Finishing Status'), "Race", COUNTROWS('Race'), "Race Results", COUNTROWS('Race Results'), "Sprint Results", COUNTROWS('Sprint Results'), "Qualifying", COUNTROWS('Qualifying'), "Lap Times", COUNTROWS('Lap Times'), "Pit Stops", COUNTROWS('Pit Stops'), "Driver Standings", COUNTROWS('Driver Standings'), "Constructor Standings", COUNTROWS('Constructor Standings'), "Constructor Results", COUNTROWS('Constructor Results'), "Date", COUNTROWS('Date'), BLANK())
+		formatString: #,##0
+		displayFolder: Data quality
+		lineageTag: 4ff606f2-3960-4916-8c0d-54d20bb8bb9c
+
+	/// First season with rows for the table, through its race. Blank for lookup tables that are not tied to a season.
+	measure 'DQ First Season' = SWITCH(SELECTEDVALUE('DQ Tables'[Check Table]), "Season", MIN('Season'[Season]), "Race", MIN('Race'[Season Year]), "Date", YEAR(MIN('Date'[Date])), "Race Results", MINX('Race Results', RELATED('Race'[Season Year])), "Sprint Results", MINX('Sprint Results', RELATED('Race'[Season Year])), "Qualifying", MINX('Qualifying', RELATED('Race'[Season Year])), "Lap Times", MINX('Lap Times', RELATED('Race'[Season Year])), "Pit Stops", MINX('Pit Stops', RELATED('Race'[Season Year])), "Driver Standings", MINX('Driver Standings', RELATED('Race'[Season Year])), "Constructor Standings", MINX('Constructor Standings', RELATED('Race'[Season Year])), "Constructor Results", MINX('Constructor Results', RELATED('Race'[Season Year])), BLANK())
+		formatString: 0
+		displayFolder: Data quality
+		lineageTag: c478501d-1f44-498e-950b-097db982bf50
+
+	/// Last season with rows for the table, through its race. Blank for lookup tables that are not tied to a season.
+	measure 'DQ Last Season' = SWITCH(SELECTEDVALUE('DQ Tables'[Check Table]), "Season", MAX('Season'[Season]), "Race", MAX('Race'[Season Year]), "Date", YEAR(MAX('Date'[Date])), "Race Results", MAXX('Race Results', RELATED('Race'[Season Year])), "Sprint Results", MAXX('Sprint Results', RELATED('Race'[Season Year])), "Qualifying", MAXX('Qualifying', RELATED('Race'[Season Year])), "Lap Times", MAXX('Lap Times', RELATED('Race'[Season Year])), "Pit Stops", MAXX('Pit Stops', RELATED('Race'[Season Year])), "Driver Standings", MAXX('Driver Standings', RELATED('Race'[Season Year])), "Constructor Standings", MAXX('Constructor Standings', RELATED('Race'[Season Year])), "Constructor Results", MAXX('Constructor Results', RELATED('Race'[Season Year])), BLANK())
+		formatString: 0
+		displayFolder: Data quality
+		lineageTag: fd3ccd80-bea6-403d-8697-586e3bf10aff
+
+	/// Rows beyond the first that share the same natural key (for example race, driver and lap for lap times).
+	measure 'DQ Duplicate Keys' = SWITCH(SELECTEDVALUE('DQ Tables'[Check Table]), "Season", COUNTROWS('Season') - COUNTROWS(SUMMARIZE('Season', 'Season'[Season])), "Circuit", COUNTROWS('Circuit') - COUNTROWS(SUMMARIZE('Circuit', 'Circuit'[Circuit Id])), "Constructor", COUNTROWS('Constructor') - COUNTROWS(SUMMARIZE('Constructor', 'Constructor'[Constructor Id])), "Driver", COUNTROWS('Driver') - COUNTROWS(SUMMARIZE('Driver', 'Driver'[Driver Id])), "Finishing Status", COUNTROWS('Finishing Status') - COUNTROWS(SUMMARIZE('Finishing Status', 'Finishing Status'[Status Id])), "Race", COUNTROWS('Race') - COUNTROWS(SUMMARIZE('Race', 'Race'[Race Id])), "Race Results", COUNTROWS('Race Results') - COUNTROWS(SUMMARIZE('Race Results', 'Race Results'[Race Id], 'Race Results'[Driver Id])), "Sprint Results", COUNTROWS('Sprint Results') - COUNTROWS(SUMMARIZE('Sprint Results', 'Sprint Results'[Race Id], 'Sprint Results'[Driver Id])), "Qualifying", COUNTROWS('Qualifying') - COUNTROWS(SUMMARIZE('Qualifying', 'Qualifying'[Race Id], 'Qualifying'[Driver Id])), "Lap Times", COUNTROWS('Lap Times') - COUNTROWS(SUMMARIZE('Lap Times', 'Lap Times'[Race Id], 'Lap Times'[Driver Id], 'Lap Times'[Lap Number])), "Pit Stops", COUNTROWS('Pit Stops') - COUNTROWS(SUMMARIZE('Pit Stops', 'Pit Stops'[Race Id], 'Pit Stops'[Driver Id], 'Pit Stops'[Stop Number])), "Driver Standings", COUNTROWS('Driver Standings') - COUNTROWS(SUMMARIZE('Driver Standings', 'Driver Standings'[Race Id], 'Driver Standings'[Driver Id])), "Constructor Standings", COUNTROWS('Constructor Standings') - COUNTROWS(SUMMARIZE('Constructor Standings', 'Constructor Standings'[Race Id], 'Constructor Standings'[Constructor Id])), "Constructor Results", COUNTROWS('Constructor Results') - COUNTROWS(SUMMARIZE('Constructor Results', 'Constructor Results'[Race Id], 'Constructor Results'[Constructor Id])), "Date", COUNTROWS('Date') - COUNTROWS(SUMMARIZE('Date', 'Date'[Date])), BLANK())
+		formatString: #,##0
+		displayFolder: Data quality
+		lineageTag: 07a18d7e-ad0c-4e8d-af3d-2aea2e016d01
+
+	/// Foreign-key values in the table that have no matching row in the table they point to. Lookup tables have no foreign keys and show blank.
+	measure 'DQ Unmatched Keys' = SWITCH(SELECTEDVALUE('DQ Tables'[Check Table]), "Race", SUMX('Race', IF(ISBLANK(RELATED('Circuit'[Circuit Id])), 1, 0) + IF(ISBLANK(RELATED('Season'[Season])), 1, 0)), "Race Results", SUMX('Race Results', IF(ISBLANK(RELATED('Race'[Race Id])), 1, 0) + IF(ISBLANK(RELATED('Driver'[Driver Id])), 1, 0) + IF(ISBLANK(RELATED('Constructor'[Constructor Id])), 1, 0) + IF(ISBLANK(RELATED('Finishing Status'[Status Id])), 1, 0)), "Sprint Results", SUMX('Sprint Results', IF(ISBLANK(RELATED('Race'[Race Id])), 1, 0) + IF(ISBLANK(RELATED('Driver'[Driver Id])), 1, 0) + IF(ISBLANK(RELATED('Constructor'[Constructor Id])), 1, 0) + IF(ISBLANK(RELATED('Finishing Status'[Status Id])), 1, 0)), "Qualifying", SUMX('Qualifying', IF(ISBLANK(RELATED('Race'[Race Id])), 1, 0) + IF(ISBLANK(RELATED('Driver'[Driver Id])), 1, 0) + IF(ISBLANK(RELATED('Constructor'[Constructor Id])), 1, 0)), "Lap Times", SUMX('Lap Times', IF(ISBLANK(RELATED('Race'[Race Id])), 1, 0) + IF(ISBLANK(RELATED('Driver'[Driver Id])), 1, 0)), "Pit Stops", SUMX('Pit Stops', IF(ISBLANK(RELATED('Race'[Race Id])), 1, 0) + IF(ISBLANK(RELATED('Driver'[Driver Id])), 1, 0)), "Driver Standings", SUMX('Driver Standings', IF(ISBLANK(RELATED('Race'[Race Id])), 1, 0) + IF(ISBLANK(RELATED('Driver'[Driver Id])), 1, 0)), "Constructor Standings", SUMX('Constructor Standings', IF(ISBLANK(RELATED('Race'[Race Id])), 1, 0) + IF(ISBLANK(RELATED('Constructor'[Constructor Id])), 1, 0)), "Constructor Results", SUMX('Constructor Results', IF(ISBLANK(RELATED('Race'[Race Id])), 1, 0) + IF(ISBLANK(RELATED('Constructor'[Constructor Id])), 1, 0)), BLANK())
+		formatString: #,##0
+		displayFolder: Data quality
+		lineageTag: 70043330-8233-41cb-ac78-7f4d45e56d26
+
+	/// Fail when the table is empty or has keys without a match, Warn when it has duplicate keys, Pass otherwise.
+	measure 'DQ Status' =
+			VAR _rows = [DQ Rows]
+			VAR _unmatched = COALESCE([DQ Unmatched Keys], 0)
+			VAR _dups = COALESCE([DQ Duplicate Keys], 0)
+			RETURN IF(ISBLANK(SELECTEDVALUE('DQ Tables'[Check Table])), BLANK(), IF(COALESCE(_rows, 0) = 0 || _unmatched > 0, "Fail", IF(_dups > 0, "Warn", "Pass")))
+		formatString: @
+		displayFolder: Data quality
+		lineageTag: a3718800-db11-4deb-9ce1-1daa259a21d3
+
+	/// Tables whose integrity status is Pass.
+	measure 'DQ Pass Count' = SUMX(ALL('DQ Tables'[Check Table]), IF([DQ Status] = "Pass", 1, 0))
+		formatString: 0
+		displayFolder: Data quality
+		lineageTag: 8721a0b7-09f1-471c-986b-a45721a65d6e
+
+	/// Tables whose integrity status is Warn.
+	measure 'DQ Warn Count' = SUMX(ALL('DQ Tables'[Check Table]), IF([DQ Status] = "Warn", 1, 0))
+		formatString: 0
+		displayFolder: Data quality
+		lineageTag: 9baab0c2-bc1e-4933-9949-ee3584f61d3f
+
+	/// Tables whose integrity status is Fail.
+	measure 'DQ Fail Count' = SUMX(ALL('DQ Tables'[Check Table]), IF([DQ Status] = "Fail", 1, 0))
+		formatString: 0
+		displayFolder: Data quality
+		lineageTag: 1656a0d4-54b7-4755-a46c-3bd97060bd4d
+
+	/// Data Quality headline: how many tables pass the integrity checks, warn or fail.
+	measure 'Headline Data Quality' = [DQ Pass Count] & " of " & COUNTROWS(ALL('DQ Tables')) & " tables pass the integrity checks; " & [DQ Warn Count] & IF([DQ Warn Count] = 1, " warns and ", " warn and ") & [DQ Fail Count] & IF([DQ Fail Count] = 1, " fails", " fail") & ". Each is explained below."
+		formatString: @
+		displayFolder: Headlines
+		lineageTag: 8b659cf0-41de-4dac-8b85-da0c530ef7b8
+
+	/// Text colour for the status: grey for Pass, amber for Warn, white for Fail. The word Pass, Warn or Fail is always shown, so colour is never the only cue.
+	measure 'DQ Table Status Ink' = SWITCH([DQ Status], "Pass", "#7B8494", "Warn", "#F5B301", "Fail", "#FFFFFF", "#F2F2F2")
+		formatString: @
+		displayFolder: Data quality
+		lineageTag: 2b1117c8-f8af-4dba-a8f6-8e7a060cf74e
+
+	column 'Check Table'
+		lineageTag: ee6a62d6-28c2-4b26-9c9e-75680e517a62
+		isNameInferred
+		sourceColumn: [Check Table]
+
+	column 'Table Order'
+		lineageTag: 21aa7ddd-79a3-412b-ad06-4247b1345ea8
+		isNameInferred
+		sourceColumn: [Table Order]
+
+	partition 'DQ Tables' = calculated
+		mode: import
+		source = DATATABLE("Check Table", STRING, "Table Order", INTEGER, {{"Season", 1}, {"Circuit", 2}, {"Constructor", 3}, {"Driver", 4}, {"Finishing Status", 5}, {"Race", 6}, {"Race Results", 7}, {"Sprint Results", 8}, {"Qualifying", 9}, {"Lap Times", 10}, {"Pit Stops", 11}, {"Driver Standings", 12}, {"Constructor Standings", 13}, {"Constructor Results", 14}, {"Date", 15}})
+

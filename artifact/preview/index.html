@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><title>F1 Evolution preview</title>
+<style>html,body{margin:0;background:#0b0d10} :root{--font-anthropic-sans:system-ui,Segoe UI,sans-serif;--font-anthropic-serif:Georgia,serif;--cds-dur-slow:.3s;--cds-ease-out:ease-out}
+.dash-skeleton{background:#1b222c;border-radius:4px;min-height:14px}</style>
+<link rel="stylesheet" href="/src/app.css"></head><body><div id="dash-root"><div class="f1" id="f1"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+const IDS=['dim_drivers','dim_constructors','dim_circuits','dim_status','fact_races','fact_results','fact_sprints','fact_quali','fact_pits','fact_laps','std_drivers','std_constructors','dq_tables','dq_nulls','dq_fk','dq_coverage','dq_text'];
+const store={},cbs=[];
+function parse(t){const L=d3.csvParseRows(t);const h=L.shift();return L.map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]])));}
+window.dash={data:(id)=>{ if(!(id in store)){store[id]={status:'loading',data:[]};fetch('/data/'+id+'.csv').then(r=>r.text()).then(t=>{store[id]={status:'ok',data:parse(t)};cbs.forEach(f=>f());});} return store[id];},
+ onData:(f)=>{cbs.push(f);f();},setLink(){},params:()=>({}),setParams(){},colors:[]};
+</script>
+<script src="/src/core.js"></script><script src="/src/ui.js"></script><script src="/src/pages1.js"></script><script src="/src/pages2.js"></script><script src="/src/pages3.js"></script><script src="/src/main.js"></script>
+<script>
+(function(){const q=new URLSearchParams(location.search);
+const t=setInterval(()=>{ if(!window.F1||!F1.M) return; clearInterval(t);
+ const find=(m,n)=>[...m.values()].find(x=>x.name===n||x.name.includes(n));
+ const st={}; if(q.get('y0')) st.y0=+q.get('y0'); if(q.get('y1')) st.y1=+q.get('y1');
+ if(q.get('driver')) st.driver=find(F1.M.drivers,q.get('driver')).id;
+ if(q.get('cons')) st.cons=find(F1.M.cons,q.get('cons')).id;
+ if(q.get('circuit')) st.circuit=find(F1.M.circuits,q.get('circuit')).id;
+ if(Object.keys(st).length) F1.setState(st);
+ if(q.get('view')){F1.ps.races=F1.ps.races||{};F1.ps.races.view=q.get('view');}
+ if(q.get('cmp')){F1.ps[q.get('page')]=F1.ps[q.get('page')]||{};F1.ps[q.get('page')].cmp=find(q.get('page')==='drivers'?F1.M.drivers:F1.M.cons,q.get('cmp')).id;}
+ if(q.get('page')) F1.navigate(q.get('page')); else F1.go();
+ document.title='READY';
+},100);})();
+</script></body></html>

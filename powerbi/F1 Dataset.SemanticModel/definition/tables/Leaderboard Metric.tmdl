@@ -1,0 +1,47 @@
+table 'Leaderboard Metric'
+	lineageTag: a07045f8-663d-4194-8a7c-0d0fa32509ab
+
+	column 'Leaderboard Metric Order'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2ee23033-e497-46be-8053-68bdb4840c4b
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+	column 'Leaderboard Metric Fields'
+		dataType: string
+		isHidden
+		lineageTag: a4759086-d6a8-4664-b4bf-e3a8b99152ea
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Leaderboard Metric Order'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+	column 'Leaderboard Metric'
+		dataType: string
+		lineageTag: 4581bf01-7320-43f1-8a5b-d10575abc401
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Leaderboard Metric Order'
+
+		relatedColumnDetails
+			groupByColumn: 'Leaderboard Metric Fields'
+
+	partition 'Leaderboard Metric' = calculated
+		mode: import
+		source =
+				{
+				    ("Wins", NAMEOF('Race Results'[Wins]), 0),
+				    ("Podiums", NAMEOF('Race Results'[Podiums]), 1),
+				    ("Poles", NAMEOF('Race Results'[Pole Positions]), 2),
+				    ("Titles", NAMEOF('Race Results'[Titles]), 3),
+				    ("Points", NAMEOF('Race Results'[Recorded Points]), 4),
+				    ("Starts", NAMEOF('Race Results'[Starts]), 5)
+				}
+

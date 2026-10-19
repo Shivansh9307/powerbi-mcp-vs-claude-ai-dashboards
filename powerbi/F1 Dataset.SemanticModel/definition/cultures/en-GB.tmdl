@@ -1,0 +1,1570 @@
+cultureInfo en-GB
+
+	linguisticMetadata =
+			{
+			  "Version": "2.0.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "race.races_held": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race",
+			          "ConceptualProperty": "# Races Held"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Races": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.constructors_raced": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "# Constructors Raced"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "race_results.circuits_used": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "# Circuits Used"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "race_results.drivers_raced": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "# Drivers Raced"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "race_results.constructors_started": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "# Constructors Started"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Constructors": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.drivers_started": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "# Drivers Started"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Drivers": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.evolution_value_complete": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Evolution Value (complete)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Complete seasons": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.evolution_value_in_progress": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Evolution Value (in progress)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Season in progress": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.grid_slot_label": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Grid Slot Label"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Grid": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.h2h_races_both_started": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "H2H Races Both Started"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Both started": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.h2h_driver_ahead": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "H2H Driver Ahead"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Selected ahead": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.h2h_compare_ahead": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "H2H Compare Ahead"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Comparison ahead": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.first_season": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "First Season"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "From": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "First": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.last_season": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Last Season"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "To": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Last": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.cmp_points_a": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Cmp Points A"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Selected pts": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.cmp_points_b": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Cmp Points B"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Comparison pts": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.cmp_wins_a": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Cmp Wins A"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Wins": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.cmp_wins_b": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Cmp Wins B"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Comp. wins": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.cmp_ahead": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Cmp Ahead"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Ahead": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.classification_order": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Classification Order"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Order": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.result_label": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Result Label"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Result": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.laps_completed": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Laps Completed"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Laps": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.driver_points": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Driver Points"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Points": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.top_driver_share_of_wins": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Top Driver Share of Wins"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Top driver share": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.retirement_rate": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Retirement Rate"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Retired": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.pole_to_win_conversion": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Pole to Win Conversion"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Pole to win": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.classified_finish_rate": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Classified Finish Rate"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Classified": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.top_scorer_eranormalised": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Top Scorer Era-Normalised"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Best era-norm. pts": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.coverage_results": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Coverage Results"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Results": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.coverage_sprint": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Coverage Sprint"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Sprints": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.coverage_qualifying": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Coverage Qualifying"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Qualifying": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.coverage_laps": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Coverage Laps"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Laps": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.coverage_pit_stops": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Coverage Pit Stops"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Pit stops": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.coverage_driver_standings": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Coverage Driver Standings"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Driver standings": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.coverage_constructor_standings": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Coverage Constructor Standings"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Constructor standings": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.coverage_constructor_results": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Coverage Constructor Results"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Constructor results": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.starts": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Starts"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Starts": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.race_entries": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Race Entries"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Entries": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.official_points_total": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Official Points Total"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Official": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.recorded_points_all_drivers": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Recorded Points All Drivers"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Recorded": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.standings_gap": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Standings Gap"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Gap": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.standings_gap_status": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Standings Gap Status"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Status": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sprint_results.classification_order": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Sprint Results",
+			          "ConceptualProperty": "Classification Order"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Order": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sprint_results.grid_position": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Sprint Results",
+			          "ConceptualProperty": "Grid Position"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Grid": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sprint_results.sprint_points": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Sprint Results",
+			          "ConceptualProperty": "Sprint Points"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Points": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "constructor_standings.latest_constructor_position": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Constructor Standings",
+			          "ConceptualProperty": "Latest Constructor Position"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Pos": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "constructor_standings.latest_constructor_points": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Constructor Standings",
+			          "ConceptualProperty": "Latest Constructor Points"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Points": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "driver_standings.latest_driver_position": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Driver Standings",
+			          "ConceptualProperty": "Latest Driver Position"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Pos": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "driver_standings.latest_driver_points": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Driver Standings",
+			          "ConceptualProperty": "Latest Driver Points"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Points": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "qualifying.quali_poles": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Qualifying",
+			          "ConceptualProperty": "Quali Poles"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Poles": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "qualifying.avg_gap_to_fastest_": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Qualifying",
+			          "ConceptualProperty": "Avg Gap to Fastest (%)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Avg gap": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "qualifying.reached_q3": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Qualifying",
+			          "ConceptualProperty": "Reached Q3"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Q3s": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "qualifying.qualifying_entries": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Qualifying",
+			          "ConceptualProperty": "Qualifying Entries"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Sessions": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "pit_stops.pit_lane_time_s": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Pit Stops",
+			          "ConceptualProperty": "Pit Lane Time (s)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Time (s)": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "pit_stops.gap_to_race_median_s": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Pit Stops",
+			          "ConceptualProperty": "Gap to Race Median (s)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "vs race median": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_tables.check_table": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Tables",
+			          "ConceptualProperty": "Check Table"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Table": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_tables.dq_rows": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Tables",
+			          "ConceptualProperty": "DQ Rows"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Rows": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_tables.dq_first_season": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Tables",
+			          "ConceptualProperty": "DQ First Season"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "First season": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_tables.dq_last_season": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Tables",
+			          "ConceptualProperty": "DQ Last Season"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Last season": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_tables.dq_duplicate_keys": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Tables",
+			          "ConceptualProperty": "DQ Duplicate Keys"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Duplicate keys": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_tables.dq_unmatched_keys": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Tables",
+			          "ConceptualProperty": "DQ Unmatched Keys"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Unmatched keys": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_tables.dq_status": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Tables",
+			          "ConceptualProperty": "DQ Status"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Status": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "status_group.status_group": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Status Group",
+			          "ConceptualProperty": "Status Group"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_raw_profile.source_file": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Raw Profile",
+			          "ConceptualProperty": "Source File"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Raw file": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_raw_profile.raw_rows": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Raw Profile",
+			          "ConceptualProperty": "Raw Rows"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Raw rows": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_raw_profile.dq_loaded_rows": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Raw Profile",
+			          "ConceptualProperty": "DQ Loaded Rows"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Loaded": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_raw_profile.dq_rows_removed": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Raw Profile",
+			          "ConceptualProperty": "DQ Rows Removed"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Removed": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_raw_profile.duplicate_key_rows": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Raw Profile",
+			          "ConceptualProperty": "Duplicate Key Rows"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Dup. keys": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_raw_profile.null_marker_cells": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Raw Profile",
+			          "ConceptualProperty": "Null Marker Cells"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Null cells": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_raw_profile.dq_profile_status": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Raw Profile",
+			          "ConceptualProperty": "DQ Profile Status"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Status": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_columns.check_column": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Columns",
+			          "ConceptualProperty": "Check Column"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Column": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_columns.dq_missing_cells": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Columns",
+			          "ConceptualProperty": "DQ Missing Cells"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Blank": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_columns.dq_missing_share": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Columns",
+			          "ConceptualProperty": "DQ Missing Share"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Share": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dq_columns.dq_missing_status": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DQ Columns",
+			          "ConceptualProperty": "DQ Missing Status"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Status": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "race_results.cars_per_race": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Race Results",
+			          "ConceptualProperty": "Cars per Race"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Cars per race": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    }
+			  }
+			}
+		contentType: json
+

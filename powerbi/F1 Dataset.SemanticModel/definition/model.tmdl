@@ -1,0 +1,44 @@
+model Model
+	culture: en-GB
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-GB
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_ProTooling = ["MCP-PBIModeling","DevMode"]
+
+annotation PBI_QueryOrder = ["Season","Circuit","Constructor","Driver","Finishing Status","Race","Race Results","Sprint Results","Qualifying","Lap Times","Pit Stops","Driver Standings","Constructor Standings","Constructor Results","Date","F1 CSV Folder","DQ Raw Profile"]
+
+ref table Season
+ref table Circuit
+ref table Constructor
+ref table Driver
+ref table 'Finishing Status'
+ref table Race
+ref table 'Race Results'
+ref table 'Sprint Results'
+ref table Qualifying
+ref table 'Lap Times'
+ref table 'Pit Stops'
+ref table 'Driver Standings'
+ref table 'Constructor Standings'
+ref table 'Constructor Results'
+ref table Date
+ref table 'Status Group'
+ref table 'Evolution Metric'
+ref table 'Leaderboard Metric'
+ref table 'Constructor Metric'
+ref table 'Compare Driver'
+ref table 'Compare Constructor'
+ref table 'DQ Tables'
+ref table 'DQ Columns'
+ref table 'Constructor Families'
+ref table 'DQ Raw Profile'
+
+ref cultureInfo en-GB
+

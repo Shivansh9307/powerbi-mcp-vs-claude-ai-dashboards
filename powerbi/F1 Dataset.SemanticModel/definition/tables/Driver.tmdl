@@ -1,0 +1,66 @@
+/// Formula 1 drivers. Grain: one row per driver.
+table Driver
+	lineageTag: 6e6008c2-2bad-4ba6-9aeb-a6d8d615a948
+
+	column 'Driver Id'
+		dataType: int64
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: 844eb976-f756-44b3-954e-7b6950c178e6
+		summarizeBy: none
+		sourceColumn: Driver Id
+
+	/// Driver full name (forename and surname).
+	column Driver
+		dataType: string
+		lineageTag: fdd5cef9-95c1-47f0-98e2-c7d9b1fe093b
+		summarizeBy: none
+		sourceColumn: Driver
+
+	/// Three-letter timing screen code, e.g. HAM. Missing for some historical drivers.
+	column 'Driver Code'
+		dataType: string
+		lineageTag: d3fe92f2-d797-4f08-8ab7-e1171a1259aa
+		summarizeBy: none
+		sourceColumn: Driver Code
+
+	/// Permanent car number chosen by the driver since 2014. Blank for earlier drivers.
+	column 'Permanent Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: b03b529a-9210-4f31-a423-41f5492fff3e
+		summarizeBy: none
+		sourceColumn: Permanent Number
+
+	column 'Date of Birth'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: fb050609-8f96-4f27-b53b-c5cd39abf24f
+		summarizeBy: none
+		sourceColumn: Date of Birth
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Driver Nationality'
+		dataType: string
+		lineageTag: 413a8ff4-a6e1-421d-9221-1799d195229f
+		summarizeBy: none
+		sourceColumn: Driver Nationality
+
+	partition Driver = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\drivers.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  Cleaned = Table.ReplaceValue(Promoted, "\N", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				  FullName = Table.AddColumn(Cleaned, "Driver", each [forename] & " " & [surname], type text),
+				  Selected = Table.SelectColumns(FullName, {"driverId", "Driver", "code", "number", "dob", "nationality"}),
+				  Renamed = Table.RenameColumns(Selected, {{"driverId", "Driver Id"}, {"code", "Driver Code"}, {"number", "Permanent Number"}, {"dob", "Date of Birth"}, {"nationality", "Driver Nationality"}}),
+				  Typed = Table.TransformColumnTypes(Renamed, {{"Driver Id", Int64.Type}, {"Driver", type text}, {"Driver Code", type text}, {"Permanent Number", Int64.Type}, {"Date of Birth", type date}, {"Driver Nationality", type text}}, "en-US")
+				in
+				  Typed
+
+	annotation PBI_ResultType = Table
+

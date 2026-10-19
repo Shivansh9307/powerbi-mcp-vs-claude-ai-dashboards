@@ -1,0 +1,58 @@
+/// List of columns checked for missing values. Names only; counts come from measures.
+table 'DQ Columns'
+	lineageTag: 085d344a-f193-4a4a-8a09-c4bebefb8dae
+
+	/// Rows in the table that holds the column in the row.
+	measure 'DQ Column Rows' = SWITCH(SELECTEDVALUE('DQ Columns'[Check Column]), "Race Results: Grid Position", COUNTROWS('Race Results'), "Race Results: Finish Position", COUNTROWS('Race Results'), "Race Results: Laps Completed", COUNTROWS('Race Results'), "Race Results: Race Duration (ms)", COUNTROWS('Race Results'), "Race Results: Fastest Lap Rank", COUNTROWS('Race Results'), "Race Results: Fastest Lap Time", COUNTROWS('Race Results'), "Sprint Results: Grid Position", COUNTROWS('Sprint Results'), "Sprint Results: Finish Position", COUNTROWS('Sprint Results'), "Qualifying: Q1 (ms)", COUNTROWS('Qualifying'), "Qualifying: Q2 (ms)", COUNTROWS('Qualifying'), "Qualifying: Q3 (ms)", COUNTROWS('Qualifying'), "Lap Times: Lap Time (ms)", COUNTROWS('Lap Times'), "Pit Stops: Pit Stop Duration (ms)", COUNTROWS('Pit Stops'), "Driver: Driver Code", COUNTROWS('Driver'), "Driver: Permanent Number", COUNTROWS('Driver'), "Driver: Date of Birth", COUNTROWS('Driver'), "Circuit: Altitude", COUNTROWS('Circuit'), "Race: Race Date", COUNTROWS('Race'), BLANK())
+		formatString: #,##0
+		displayFolder: Data quality
+		lineageTag: 5a594f11-c75c-49a5-b654-0b82228187c9
+
+	/// Rows where the column is blank. The source marks missing values as \N and they are loaded as blank, never as zero.
+	measure 'DQ Missing Cells' = IF(HASONEVALUE('DQ Columns'[Check Column]), COALESCE(SWITCH(SELECTEDVALUE('DQ Columns'[Check Column]), "Race Results: Grid Position", COUNTROWS(FILTER('Race Results', ISBLANK('Race Results'[Grid Position]))), "Race Results: Finish Position", COUNTROWS(FILTER('Race Results', ISBLANK('Race Results'[Finish Position]))), "Race Results: Laps Completed", COUNTROWS(FILTER('Race Results', ISBLANK('Race Results'[Laps Completed]))), "Race Results: Race Duration (ms)", COUNTROWS(FILTER('Race Results', ISBLANK('Race Results'[Race Duration (ms)]))), "Race Results: Fastest Lap Rank", COUNTROWS(FILTER('Race Results', ISBLANK('Race Results'[Fastest Lap Rank]))), "Race Results: Fastest Lap Time", COUNTROWS(FILTER('Race Results', ISBLANK('Race Results'[Fastest Lap Time]))), "Sprint Results: Grid Position", COUNTROWS(FILTER('Sprint Results', ISBLANK('Sprint Results'[Grid Position]))), "Sprint Results: Finish Position", COUNTROWS(FILTER('Sprint Results', ISBLANK('Sprint Results'[Finish Position]))), "Qualifying: Q1 (ms)", COUNTROWS(FILTER('Qualifying', ISBLANK('Qualifying'[Q1 (ms)]))), "Qualifying: Q2 (ms)", COUNTROWS(FILTER('Qualifying', ISBLANK('Qualifying'[Q2 (ms)]))), "Qualifying: Q3 (ms)", COUNTROWS(FILTER('Qualifying', ISBLANK('Qualifying'[Q3 (ms)]))), "Lap Times: Lap Time (ms)", COUNTROWS(FILTER('Lap Times', ISBLANK('Lap Times'[Lap Time (ms)]))), "Pit Stops: Pit Stop Duration (ms)", COUNTROWS(FILTER('Pit Stops', ISBLANK('Pit Stops'[Pit Stop Duration (ms)]))), "Driver: Driver Code", COUNTROWS(FILTER('Driver', ISBLANK('Driver'[Driver Code]))), "Driver: Permanent Number", COUNTROWS(FILTER('Driver', ISBLANK('Driver'[Permanent Number]))), "Driver: Date of Birth", COUNTROWS(FILTER('Driver', ISBLANK('Driver'[Date of Birth]))), "Circuit: Altitude", COUNTROWS(FILTER('Circuit', ISBLANK('Circuit'[Altitude]))), "Race: Race Date", COUNTROWS(FILTER('Race', ISBLANK('Race'[Race Date])))), 0))
+		formatString: #,##0
+		displayFolder: Data quality
+		lineageTag: e8171172-1e3f-4aec-ac45-f0657cff680a
+
+	/// Share of rows where the column is blank.
+	measure 'DQ Missing Share' = DIVIDE([DQ Missing Cells], [DQ Column Rows])
+		formatString: 0.0%
+		displayFolder: Data quality
+		lineageTag: f344fa85-ffbf-412c-aef4-29c293483ae8
+
+	/// Pass when under 1% of rows are blank, otherwise Warn. Blank values are mostly coverage gaps by era or entries that did not finish, so this check never fails.
+	measure 'DQ Missing Status' = IF(ISBLANK(SELECTEDVALUE('DQ Columns'[Check Column])), BLANK(), IF(COALESCE([DQ Missing Share], 0) < 0.01, "Pass", "Warn"))
+		formatString: @
+		displayFolder: Data quality
+		lineageTag: 9dcd4f00-7566-40f3-9ca5-5bbcfed1c972
+
+	/// Text colour for the status: grey for Pass, amber for Warn, white for Fail. The word Pass, Warn or Fail is always shown, so colour is never the only cue.
+	measure 'DQ Missing Status Ink' = SWITCH([DQ Missing Status], "Pass", "#7B8494", "Warn", "#F5B301", "Fail", "#FFFFFF", "#F2F2F2")
+		formatString: @
+		displayFolder: Data quality
+		lineageTag: a490228d-0ae8-4856-9295-6cde16447fa2
+
+	column 'Check Column'
+		lineageTag: 9aacee64-6f4e-4235-b248-f735874a4a69
+		isNameInferred
+		sourceColumn: [Check Column]
+
+	column 'Column Table'
+		lineageTag: 70520891-3103-49ef-be60-e41f0a982890
+		isNameInferred
+		sourceColumn: [Column Table]
+
+	column 'Column Name'
+		lineageTag: 7b10af13-a204-4424-9b7d-c53192690a0e
+		isNameInferred
+		sourceColumn: [Column Name]
+
+	column 'Column Order'
+		lineageTag: 76fe1107-68c3-4f58-bf9e-4f86f672775b
+		isNameInferred
+		sourceColumn: [Column Order]
+
+	partition 'DQ Columns' = calculated
+		mode: import
+		source = DATATABLE("Check Column", STRING, "Column Table", STRING, "Column Name", STRING, "Column Order", INTEGER, {{"Race Results: Grid Position", "Race Results", "Grid Position", 1}, {"Race Results: Finish Position", "Race Results", "Finish Position", 2}, {"Race Results: Laps Completed", "Race Results", "Laps Completed", 3}, {"Race Results: Race Duration (ms)", "Race Results", "Race Duration (ms)", 4}, {"Race Results: Fastest Lap Rank", "Race Results", "Fastest Lap Rank", 5}, {"Race Results: Fastest Lap Time", "Race Results", "Fastest Lap Time", 6}, {"Sprint Results: Grid Position", "Sprint Results", "Grid Position", 7}, {"Sprint Results: Finish Position", "Sprint Results", "Finish Position", 8}, {"Qualifying: Q1 (ms)", "Qualifying", "Q1 (ms)", 9}, {"Qualifying: Q2 (ms)", "Qualifying", "Q2 (ms)", 10}, {"Qualifying: Q3 (ms)", "Qualifying", "Q3 (ms)", 11}, {"Lap Times: Lap Time (ms)", "Lap Times", "Lap Time (ms)", 12}, {"Pit Stops: Pit Stop Duration (ms)", "Pit Stops", "Pit Stop Duration (ms)", 13}, {"Driver: Driver Code", "Driver", "Driver Code", 14}, {"Driver: Permanent Number", "Driver", "Permanent Number", 15}, {"Driver: Date of Birth", "Driver", "Date of Birth", 16}, {"Circuit: Altitude", "Circuit", "Altitude", 17}, {"Race: Race Date", "Race", "Race Date", 18}})
+

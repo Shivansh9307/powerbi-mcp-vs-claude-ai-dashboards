@@ -1,0 +1,84 @@
+/// Calendar table covering every full year from the first to the last race. Grain: one row per day.
+table Date
+	lineageTag: 4967aabd-b558-40ca-8d30-870290544f0e
+	dataCategory: Time
+
+	/// Calendar date. Relates to Race[Race Date].
+	column Date
+		dataType: dateTime
+		isUnique
+		isKey
+		formatString: Short Date
+		lineageTag: bccd463f-67be-410d-ba08-abc46ddc79fd
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: fcb4248d-a03a-4f28-8d09-ea1047a24b6c
+		summarizeBy: none
+		sourceColumn: Year
+
+	column 'Quarter Number'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4f5dbe4a-c32d-41c8-bd18-be0a8cb45af0
+		summarizeBy: none
+		sourceColumn: Quarter Number
+
+	column Quarter
+		dataType: string
+		lineageTag: c3a959e0-9eff-4b3e-9778-87bab10f9f74
+		summarizeBy: none
+		sourceColumn: Quarter
+		sortByColumn: 'Quarter Number'
+
+	column 'Month Number'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c6b8c0f2-f1c2-468a-b8da-4b5bf1024b54
+		summarizeBy: none
+		sourceColumn: Month Number
+
+	column Month
+		dataType: string
+		lineageTag: de799e11-0484-4152-abd8-6b07f75041ef
+		summarizeBy: none
+		sourceColumn: Month
+		sortByColumn: 'Month Number'
+
+	column 'Day of Month'
+		dataType: int64
+		formatString: 0
+		lineageTag: 8075e809-55eb-45d6-b5ad-c351b862893e
+		summarizeBy: none
+		sourceColumn: Day of Month
+
+	partition Date = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\races.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  RaceDates = List.Transform(Promoted[date], each Date.From(_)),
+				  StartDate = Date.StartOfYear(List.Min(RaceDates)),
+				  EndDate = Date.EndOfYear(List.Max(RaceDates)),
+				  DateList = List.Dates(StartDate, Duration.Days(EndDate - StartDate) + 1, #duration(1, 0, 0, 0)),
+				  ToTable = Table.FromList(DateList, Splitter.SplitByNothing(), {"Date"}, null, ExtraValues.Error),
+				  AddYear = Table.AddColumn(ToTable, "Year", each Date.Year([Date]), Int64.Type),
+				  AddQuarterNumber = Table.AddColumn(AddYear, "Quarter Number", each Date.QuarterOfYear([Date]), Int64.Type),
+				  AddQuarter = Table.AddColumn(AddQuarterNumber, "Quarter", each "Q" & Text.From(Date.QuarterOfYear([Date])), type text),
+				  AddMonthNumber = Table.AddColumn(AddQuarter, "Month Number", each Date.Month([Date]), Int64.Type),
+				  AddMonth = Table.AddColumn(AddMonthNumber, "Month", each Date.MonthName([Date], "en-US"), type text),
+				  AddDay = Table.AddColumn(AddMonth, "Day of Month", each Date.Day([Date]), Int64.Type),
+				  Typed = Table.TransformColumnTypes(AddDay, {{"Date", type date}}, "en-US")
+				in
+				  Typed
+
+	annotation PBI_ResultType = Table
+

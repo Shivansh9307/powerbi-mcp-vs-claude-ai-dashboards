@@ -1,0 +1,29 @@
+/// Lookup of the seven ways an entry can end, with a fixed display order and the rule behind each group.
+table 'Status Group'
+	lineageTag: 7074a1a0-ffa0-4f70-b128-37e4cd704471
+
+	column 'Status Group'
+		lineageTag: 43145178-ff09-42a3-b1c6-d54c0463e8c5
+		isNameInferred
+		sourceColumn: [Status Group]
+		sortByColumn: 'Group Order'
+
+	column 'Group Order'
+		lineageTag: 5828d90f-b5b9-445d-810c-e72716816886
+		isNameInferred
+		sourceColumn: [Group Order]
+
+	column 'Counts as DNF'
+		lineageTag: 9683ccd0-2c3c-46f6-b47f-5a61850a7253
+		isNameInferred
+		sourceColumn: [Counts as DNF]
+
+	column Rule
+		lineageTag: d5edfc29-4f13-47a2-a261-094fb2fbd7a5
+		isNameInferred
+		sourceColumn: [Rule]
+
+	partition 'Status Group' = calculated
+		mode: import
+		source = DATATABLE("Status Group", STRING, "Group Order", INTEGER, "Counts as DNF", STRING, "Rule", STRING, {{"Finished", 1, "No", "Status Finished on the lead lap"}, {"Lapped", 2, "No", "Classified but one or more laps down (+N Lap)"}, {"Mechanical DNF", 3, "Yes", "Retired with a car failure: engine, gearbox, hydraulics, electrics, tyres and the rest"}, {"Accident DNF", 4, "Yes", "Accident, collision, spun off, damage, debris"}, {"Other DNF", 5, "Yes", "Retired, not classified, withdrew, injury, illness, safety"}, {"Disqualified", 6, "No", "Position code D or E, or a disqualification, exclusion or underweight status"}, {"Did not start", 7, "No", "Position code F or W: did not qualify, did not prequalify, 107% rule, withdrawn"}})
+

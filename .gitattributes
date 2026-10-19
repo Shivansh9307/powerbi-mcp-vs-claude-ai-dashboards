@@ -1,0 +1,11 @@
+# Normalise text, keep Power BI's own line endings for model files, mark binaries.
+* text=auto
+*.tmdl text eol=crlf
+*.pbip text eol=lf
+*.pbir text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.js text eol=lf
+*.yml text eol=lf
+*.png binary

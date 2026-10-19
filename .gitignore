@@ -1,0 +1,49 @@
+# --- Local AI assistant files (kept out on purpose) ---
+CLAUDE.md
+.claude/
+
+# --- Data: never committed (see data/README.md) ---
+data/raw/
+*.csv
+!tests/fixtures/*.csv
+
+# --- Power BI local state (machine-specific, large) ---
+**/.pbi/cache.abf
+**/.pbi/localSettings.json
+**/.pbi/unappliedChanges.json
+*.pbix
+*.pbit
+*.bak
+~$*
+
+# --- Python ---
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# --- Node ---
+node_modules/
+
+# --- Reference material that must not be redistributed ---
+*.pdf
+
+# --- Scratch, screenshots in progress, OS and editor noise ---
+scratch/
+tmp/
+shots_tmp/
+*.tmp
+Thumbs.db
+desktop.ini
+.DS_Store
+.idea/
+.vscode/
+*.log
+

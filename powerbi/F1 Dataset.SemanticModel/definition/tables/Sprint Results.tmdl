@@ -1,0 +1,143 @@
+/// Classification of sprint races (2021 onwards). Grain: one row per driver per sprint.
+table 'Sprint Results'
+	lineageTag: 5fcd7dd8-a89a-41fe-8783-38db1c4918af
+
+	/// Sprint race victories (sprints have been held since 2021).
+	measure 'Sprint Wins' = CALCULATE(COUNTROWS('Sprint Results'), 'Sprint Results'[Finish Position] = 1)
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: ad6a1dd4-f767-4e8b-a9aa-e57683841e30
+
+	/// Championship points scored in sprint races.
+	measure 'Sprint Points' = SUM('Sprint Results'[Points])
+		formatString: General Number
+		displayFolder: Points
+		lineageTag: b0c8c9e4-3b45-4da3-9207-1f3ce12a1bc6
+
+	/// Title of the sprint table: says when the chosen Grand Prix had no sprint.
+	measure 'Sprint Title' = IF(COUNTROWS('Sprint Results') = 0, "Sprint result: none at this Grand Prix (sprints exist from 2021)", "Sprint result")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: dcb6d9ef-1032-450f-88df-a2af0c18886c
+
+	column 'Race Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e1b6d0de-8568-40ef-b11c-59af78b25dca
+		summarizeBy: none
+		sourceColumn: Race Id
+
+	column 'Driver Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: bfd19e67-5c38-45d7-9812-ba5855907804
+		summarizeBy: none
+		sourceColumn: Driver Id
+
+	column 'Constructor Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 1708b4be-5be1-45f9-80b9-6b18b2a51eaf
+		summarizeBy: none
+		sourceColumn: Constructor Id
+
+	column 'Status Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2dc916c4-964b-4021-8e63-a805cc5cdc5a
+		summarizeBy: none
+		sourceColumn: Status Id
+
+	column 'Grid Position'
+		dataType: int64
+		formatString: 0
+		lineageTag: 3df20079-6754-4da4-b91e-7e50a8f8e6de
+		summarizeBy: none
+		sourceColumn: Grid Position
+
+	/// Official sprint finishing position. Blank when not classified.
+	column 'Finish Position'
+		dataType: int64
+		formatString: 0
+		lineageTag: deea8d8f-ede1-4fd3-82e3-b0f3dda36f3a
+		summarizeBy: none
+		sourceColumn: Finish Position
+
+	column 'Classification Order'
+		dataType: int64
+		formatString: 0
+		lineageTag: 89dbf945-490b-4195-84c5-0c2be9408c16
+		summarizeBy: none
+		sourceColumn: Classification Order
+
+	/// Championship points scored in the sprint.
+	column Points
+		dataType: decimal
+		isHidden
+		formatString: #,##0.##
+		lineageTag: cb6f2e00-5403-4e27-9460-a3e380cecdbb
+		summarizeBy: sum
+		sourceColumn: Points
+
+	column 'Laps Completed'
+		dataType: int64
+		formatString: 0
+		lineageTag: 5a5a779a-1049-4deb-bc97-16d3100f74eb
+		summarizeBy: none
+		sourceColumn: Laps Completed
+
+	column 'Sprint Duration (ms)'
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 6d343745-ae02-4225-8019-cf8c23b63dac
+		summarizeBy: none
+		sourceColumn: Sprint Duration (ms)
+
+	column 'Fastest Lap Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: d284275e-6ab8-41ee-bcaf-47d3bd860735
+		summarizeBy: none
+		sourceColumn: Fastest Lap Number
+
+	column 'Fastest Lap Time'
+		dataType: string
+		lineageTag: fa7905e5-8f94-4277-ac0f-a90cbdc23087
+		summarizeBy: none
+		sourceColumn: Fastest Lap Time
+
+	/// Raw position code from the source: a number for classified finishers, R retired, D disqualified, E excluded, W withdrawn, F failed to qualify, N not classified.
+	column 'Position Text'
+		dataType: string
+		isHidden
+		lineageTag: e8e9c3c9-14b2-4b0d-b2ad-025f4eba7b3e
+		summarizeBy: none
+		sourceColumn: Position Text
+
+	/// How the sprint entry ended, grouped with the same rules as race results.
+	column 'Status Group' = SWITCH(TRUE(), 'Sprint Results'[Position Text] IN {"F", "W"}, "Did not start", 'Sprint Results'[Position Text] IN {"D", "E"}, "Disqualified", RELATED('Finishing Status'[Default Status Group]))
+		dataType: string
+		lineageTag: e81c9ae4-0bd6-4ff0-8eeb-072d8b3d8351
+		summarizeBy: none
+
+	partition 'Sprint Results' = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\sprint_results.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  Cleaned = Table.ReplaceValue(Promoted, "\N", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				  Selected = Table.SelectColumns(Cleaned, {"raceId", "driverId", "constructorId", "statusId", "grid", "position", "positionText", "positionOrder", "points", "laps", "milliseconds", "fastestLap", "fastestLapTime"}),
+				  Classified = Table.AddColumn(Selected, "classifiedPosition", each if [positionText] <> null and (try Number.FromText([positionText]))[HasError] = false then [position] else null, type text),
+				  Dropped = Table.RemoveColumns(Classified, {"position"}),
+				  Renamed = Table.RenameColumns(Dropped, {{"raceId", "Race Id"}, {"driverId", "Driver Id"}, {"constructorId", "Constructor Id"}, {"statusId", "Status Id"}, {"grid", "Grid Position"}, {"classifiedPosition", "Finish Position"}, {"positionText", "Position Text"}, {"positionOrder", "Classification Order"}, {"points", "Points"}, {"laps", "Laps Completed"}, {"milliseconds", "Sprint Duration (ms)"}, {"fastestLap", "Fastest Lap Number"}, {"fastestLapTime", "Fastest Lap Time"}}),
+				  Typed = Table.TransformColumnTypes(Renamed, {{"Race Id", Int64.Type}, {"Driver Id", Int64.Type}, {"Constructor Id", Int64.Type}, {"Status Id", Int64.Type}, {"Grid Position", Int64.Type}, {"Finish Position", Int64.Type}, {"Position Text", type text}, {"Classification Order", Int64.Type}, {"Points", Currency.Type}, {"Laps Completed", Int64.Type}, {"Sprint Duration (ms)", Int64.Type}, {"Fastest Lap Number", Int64.Type}, {"Fastest Lap Time", type text}}, "en-US")
+				in
+				  Typed
+
+	annotation PBI_ResultType = Table
+

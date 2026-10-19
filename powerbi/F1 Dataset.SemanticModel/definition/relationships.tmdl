@@ -1,0 +1,112 @@
+relationship 'Race_Circuit Id_Circuit_Circuit Id'
+	fromColumn: Race.'Circuit Id'
+	toColumn: Circuit.'Circuit Id'
+
+relationship 'Race_Season Year_Season_Season'
+	fromColumn: Race.'Season Year'
+	toColumn: Season.Season
+
+relationship 'Race_Race Date_Date_Date'
+	fromColumn: Race.'Race Date'
+	toColumn: Date.Date
+
+relationship 'Race Results_Race Id_Race_Race Id'
+	fromColumn: 'Race Results'.'Race Id'
+	toColumn: Race.'Race Id'
+
+relationship 'Race Results_Driver Id_Driver_Driver Id'
+	fromColumn: 'Race Results'.'Driver Id'
+	toColumn: Driver.'Driver Id'
+
+relationship 'Race Results_Constructor Id_Constructor_Constructor Id'
+	fromColumn: 'Race Results'.'Constructor Id'
+	toColumn: Constructor.'Constructor Id'
+
+relationship 'Race Results_Status Id_Finishing Status_Status Id'
+	fromColumn: 'Race Results'.'Status Id'
+	toColumn: 'Finishing Status'.'Status Id'
+
+relationship 'Sprint Results_Race Id_Race_Race Id'
+	fromColumn: 'Sprint Results'.'Race Id'
+	toColumn: Race.'Race Id'
+
+relationship 'Sprint Results_Driver Id_Driver_Driver Id'
+	fromColumn: 'Sprint Results'.'Driver Id'
+	toColumn: Driver.'Driver Id'
+
+relationship 'Sprint Results_Constructor Id_Constructor_Constructor Id'
+	fromColumn: 'Sprint Results'.'Constructor Id'
+	toColumn: Constructor.'Constructor Id'
+
+relationship 'Sprint Results_Status Id_Finishing Status_Status Id'
+	fromColumn: 'Sprint Results'.'Status Id'
+	toColumn: 'Finishing Status'.'Status Id'
+
+relationship 'Qualifying_Race Id_Race_Race Id'
+	fromColumn: Qualifying.'Race Id'
+	toColumn: Race.'Race Id'
+
+relationship 'Qualifying_Driver Id_Driver_Driver Id'
+	fromColumn: Qualifying.'Driver Id'
+	toColumn: Driver.'Driver Id'
+
+relationship 'Qualifying_Constructor Id_Constructor_Constructor Id'
+	fromColumn: Qualifying.'Constructor Id'
+	toColumn: Constructor.'Constructor Id'
+
+relationship 'Lap Times_Race Id_Race_Race Id'
+	fromColumn: 'Lap Times'.'Race Id'
+	toColumn: Race.'Race Id'
+
+relationship 'Lap Times_Driver Id_Driver_Driver Id'
+	fromColumn: 'Lap Times'.'Driver Id'
+	toColumn: Driver.'Driver Id'
+
+relationship 'Pit Stops_Race Id_Race_Race Id'
+	fromColumn: 'Pit Stops'.'Race Id'
+	toColumn: Race.'Race Id'
+
+relationship 'Pit Stops_Driver Id_Driver_Driver Id'
+	fromColumn: 'Pit Stops'.'Driver Id'
+	toColumn: Driver.'Driver Id'
+
+relationship 'Driver Standings_Race Id_Race_Race Id'
+	fromColumn: 'Driver Standings'.'Race Id'
+	toColumn: Race.'Race Id'
+
+relationship 'Driver Standings_Driver Id_Driver_Driver Id'
+	fromColumn: 'Driver Standings'.'Driver Id'
+	toColumn: Driver.'Driver Id'
+
+relationship 'Constructor Standings_Race Id_Race_Race Id'
+	fromColumn: 'Constructor Standings'.'Race Id'
+	toColumn: Race.'Race Id'
+
+relationship 'Constructor Standings_Constructor Id_Constructor_Constructor Id'
+	fromColumn: 'Constructor Standings'.'Constructor Id'
+	toColumn: Constructor.'Constructor Id'
+
+relationship 'Constructor Results_Race Id_Race_Race Id'
+	fromColumn: 'Constructor Results'.'Race Id'
+	toColumn: Race.'Race Id'
+
+relationship 'Constructor Results_Constructor Id_Constructor_Constructor Id'
+	fromColumn: 'Constructor Results'.'Constructor Id'
+	toColumn: Constructor.'Constructor Id'
+
+relationship 'Pit Stops_Constructor Id_Constructor_Constructor Id'
+	fromColumn: 'Pit Stops'.'Constructor Id'
+	toColumn: Constructor.'Constructor Id'
+
+relationship 'Lap Times_Constructor Id_Constructor_Constructor Id'
+	fromColumn: 'Lap Times'.'Constructor Id'
+	toColumn: Constructor.'Constructor Id'
+
+relationship 'Race Results_Status Group_Status Group_Status Group'
+	fromColumn: 'Race Results'.'Status Group'
+	toColumn: 'Status Group'.'Status Group'
+
+relationship 'Sprint Results_Status Group_Status Group_Status Group'
+	fromColumn: 'Sprint Results'.'Status Group'
+	toColumn: 'Status Group'.'Status Group'
+

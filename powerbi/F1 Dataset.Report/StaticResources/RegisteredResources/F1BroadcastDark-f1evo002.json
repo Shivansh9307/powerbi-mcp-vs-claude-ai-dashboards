@@ -1,0 +1,234 @@
+{
+  "name": "F1BroadcastDark-f1evo002.json",
+  "dataColors": [
+    "#F5B301",
+    "#C9CED6",
+    "#8A94A3",
+    "#5B6470",
+    "#3A404A",
+    "#2A2F38",
+    "#1D2128",
+    "#F2F2F2",
+    "#4A525E",
+    "#6B7480",
+    "#A8B0BC",
+    "#D7DBE1",
+    "#3A404A"
+  ],
+  "foreground": "#F2F2F2",
+  "foregroundNeutralSecondary": "#9AA3AF",
+  "foregroundNeutralTertiary": "#9AA3AF",
+  "background": "#0F1115",
+  "backgroundLight": "#262B33",
+  "backgroundNeutral": "#14171C",
+  "tableAccent": "#F5B301",
+  "shapeStroke": "#2A2F38",
+  "disabledText": "#7B8494",
+  "good": "#C9CED6",
+  "neutral": "#F5B301",
+  "bad": "#FFFFFF",
+  "maximum": "#F5B301",
+  "center": "#5B6470",
+  "minimum": "#1D2128",
+  "null": "#9AA3AF",
+  "hyperlink": "#F5B301",
+  "visitedHyperlink": "#C9CED6",
+  "textClasses": {
+    "callout": {
+      "fontSize": 24,
+      "fontFace": "Segoe UI Semibold",
+      "color": "#F2F2F2"
+    },
+    "title": {
+      "fontSize": 13,
+      "fontFace": "Segoe UI Semibold",
+      "color": "#F2F2F2"
+    },
+    "header": {
+      "fontSize": 12,
+      "fontFace": "Segoe UI Semibold",
+      "color": "#F2F2F2"
+    },
+    "label": {
+      "fontSize": 10.5,
+      "fontFace": "Segoe UI",
+      "color": "#F2F2F2"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": false
+          }
+        ],
+        "border": [
+          {
+            "show": false
+          }
+        ],
+        "title": [
+          {
+            "show": true,
+            "fontSize": 13,
+            "fontColor": {
+              "solid": {
+                "color": "#F2F2F2"
+              }
+            },
+            "titleWrap": true
+          }
+        ],
+        "subTitle": [
+          {
+            "show": false
+          }
+        ],
+        "categoryAxis": [
+          {
+            "gridlineShow": false,
+            "labelColor": {
+              "solid": {
+                "color": "#9AA3AF"
+              }
+            }
+          }
+        ],
+        "valueAxis": [
+          {
+            "gridlineShow": false,
+            "labelColor": {
+              "solid": {
+                "color": "#9AA3AF"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "textbox": {
+      "*": {
+        "background": [
+          {
+            "show": false
+          }
+        ],
+        "border": [
+          {
+            "show": false
+          }
+        ],
+        "title": [
+          {
+            "show": false
+          }
+        ],
+        "padding": [
+          {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0
+          }
+        ]
+      }
+    },
+    "shape": {
+      "*": {
+        "background": [
+          {
+            "show": false
+          }
+        ],
+        "border": [
+          {
+            "show": false
+          }
+        ],
+        "title": [
+          {
+            "show": false
+          }
+        ],
+        "padding": [
+          {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0
+          }
+        ]
+      }
+    },
+    "slicer": {
+      "*": {
+        "background": [
+          {
+            "show": false
+          }
+        ],
+        "border": [
+          {
+            "show": false
+          }
+        ],
+        "title": [
+          {
+            "show": false
+          }
+        ],
+        "padding": [
+          {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0
+          }
+        ]
+      }
+    },
+    "cardVisual": {
+      "*": {
+        "background": [
+          {
+            "show": false
+          }
+        ],
+        "border": [
+          {
+            "show": false
+          }
+        ]
+      }
+    },
+    "actionButton": {
+      "*": {
+        "background": [
+          {
+            "show": false
+          }
+        ],
+        "border": [
+          {
+            "show": false
+          }
+        ]
+      }
+    },
+    "pageNavigator": {
+      "*": {
+        "background": [
+          {
+            "show": false
+          }
+        ],
+        "border": [
+          {
+            "show": false
+          }
+        ]
+      }
+    }
+  }
+}

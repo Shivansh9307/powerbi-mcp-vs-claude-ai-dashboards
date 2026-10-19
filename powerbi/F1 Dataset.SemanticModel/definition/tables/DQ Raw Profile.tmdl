@@ -1,0 +1,79 @@
+/// Profile of the raw CSV files read directly in Power Query: raw row count, rows sharing the same key, and cells holding the source null marker. Compares the files with what the model loaded.
+table 'DQ Raw Profile'
+	lineageTag: 65b63d9f-ab4d-411e-bc36-7915de1152f6
+
+	/// Rows of the same source file that were loaded into the model.
+	measure 'DQ Loaded Rows' = SWITCH(SELECTEDVALUE('DQ Raw Profile'[Source File]), "seasons.csv", COUNTROWS('Season'), "circuits.csv", COUNTROWS('Circuit'), "constructors.csv", COUNTROWS('Constructor'), "drivers.csv", COUNTROWS('Driver'), "status.csv", COUNTROWS('Finishing Status'), "races.csv", COUNTROWS('Race'), "results.csv", COUNTROWS('Race Results'), "sprint_results.csv", COUNTROWS('Sprint Results'), "qualifying.csv", COUNTROWS('Qualifying'), "lap_times.csv", COUNTROWS('Lap Times'), "pit_stops.csv", COUNTROWS('Pit Stops'), "driver_standings.csv", COUNTROWS('Driver Standings'), "constructor_standings.csv", COUNTROWS('Constructor Standings'), "constructor_results.csv", COUNTROWS('Constructor Results'), BLANK())
+		formatString: #,##0
+		displayFolder: Data quality
+		lineageTag: a7ab27cf-ad44-4b8f-818c-392c7dfdb87d
+
+	/// Raw rows minus loaded rows. Only duplicate rows are removed in Power Query.
+	measure 'DQ Rows Removed' = SUM('DQ Raw Profile'[Raw Rows]) - [DQ Loaded Rows]
+		formatString: #,##0
+		displayFolder: Data quality
+		lineageTag: 1744f204-cd17-4d11-9bdc-3aac6646fe20
+
+	/// Pass when every raw row was loaded, Warn when the rows removed equal the duplicate key rows found (duplicates handled), Fail when rows are missing for any other reason.
+	measure 'DQ Profile Status' =
+			VAR _removed = [DQ Rows Removed]
+			VAR _dups = SUM('DQ Raw Profile'[Duplicate Key Rows])
+			RETURN IF(ISBLANK(_removed), BLANK(), IF(_removed = 0, "Pass", IF(_removed = _dups, "Warn", "Fail")))
+		formatString: @
+		displayFolder: Data quality
+		lineageTag: e34af6e0-254b-44ff-a53d-68988bbb346a
+
+	/// Text colour for the status: grey for Pass, amber for Warn, white for Fail. The word Pass, Warn or Fail is always shown, so colour is never the only cue.
+	measure 'DQ Profile Status Ink' = SWITCH([DQ Profile Status], "Pass", "#7B8494", "Warn", "#F5B301", "Fail", "#FFFFFF", "#F2F2F2")
+		formatString: @
+		displayFolder: Data quality
+		lineageTag: 5dde855c-a2ef-40d3-920e-e696b2e6da1e
+
+	column 'Source File'
+		dataType: string
+		lineageTag: 0f0f6e02-545b-477a-86dd-5399585387a6
+		summarizeBy: none
+		sourceColumn: Source File
+
+	column 'Raw Rows'
+		dataType: int64
+		formatString: #,##0
+		lineageTag: a0d9be5d-3958-4cc6-943f-c47bc179a8d5
+		summarizeBy: sum
+		sourceColumn: Raw Rows
+
+	column 'Duplicate Key Rows'
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 3c6468c4-5ca9-4b8e-80d3-b76eeec19d92
+		summarizeBy: sum
+		sourceColumn: Duplicate Key Rows
+
+	column 'Null Marker Cells'
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 4830ac16-500b-47df-838f-dbe68ea441c0
+		summarizeBy: sum
+		sourceColumn: Null Marker Cells
+
+	partition 'DQ Raw Profile' = m
+		mode: import
+		source =
+				let
+				  Files = {
+				    {"seasons.csv", {"year"}}, {"circuits.csv", {"circuitId"}}, {"constructors.csv", {"constructorId"}}, {"drivers.csv", {"driverId"}}, {"status.csv", {"statusId"}}, {"races.csv", {"raceId"}}, {"results.csv", {"resultId"}}, {"sprint_results.csv", {"resultId"}}, {"qualifying.csv", {"qualifyId"}}, {"lap_times.csv", {"raceId", "driverId", "lap"}}, {"pit_stops.csv", {"raceId", "driverId", "stop"}}, {"driver_standings.csv", {"driverStandingsId"}}, {"constructor_standings.csv", {"constructorStandingsId"}}, {"constructor_results.csv", {"constructorResultsId"}}
+				  },
+				  Profile = (f as list) as record =>
+				    let
+				      Raw = Table.PromoteHeaders(Csv.Document(File.Contents(#"F1 CSV Folder" & "\" & f{0}), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), [PromoteAllScalars=true]),
+				      Rows = Table.RowCount(Raw),
+				      Keys = Table.RowCount(Table.Distinct(Table.SelectColumns(Raw, f{1}))),
+				      Nulls = List.Sum(List.Transform(Table.ColumnNames(Raw), (c) => List.Count(List.Select(Table.Column(Raw, c), (v) => v = "\N"))))
+				    in
+				      [#"Source File" = f{0}, #"Raw Rows" = Rows, #"Duplicate Key Rows" = Rows - Keys, #"Null Marker Cells" = Nulls],
+				  Result = Table.FromRecords(List.Transform(Files, Profile), type table [#"Source File" = text, #"Raw Rows" = Int64.Type, #"Duplicate Key Rows" = Int64.Type, #"Null Marker Cells" = Int64.Type])
+				in
+				  Result
+
+	annotation PBI_ResultType = Table
+

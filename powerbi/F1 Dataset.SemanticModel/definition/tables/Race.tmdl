@@ -1,0 +1,109 @@
+/// Every Formula 1 Grand Prix. Grain: one row per race.
+table Race
+	lineageTag: d60880db-6053-455e-91a5-5437c6a52ba3
+
+	/// Grands Prix with at least one starter in the selection. Races on the calendar that have not been run yet are not counted. With a driver or constructor selected it counts the races they started.
+	measure '# Races Held' = COUNTROWS(FILTER('Race', CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Started] = TRUE()) > 0))
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 2f749924-f38f-498a-9018-449435c3f555
+
+	column 'Race Id'
+		dataType: int64
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: 778c8fee-b886-4a7d-8d8a-838909b62bf6
+		summarizeBy: none
+		sourceColumn: Race Id
+
+	column 'Season Year'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 621ffe3c-604e-4c0a-9ee0-4fc5c2b8948d
+		summarizeBy: none
+		sourceColumn: Season Year
+
+	/// Round number within the season (1 = season opener).
+	column Round
+		dataType: int64
+		formatString: 0
+		lineageTag: d33e5bce-9cfa-4716-888d-442902ca550f
+		summarizeBy: none
+		sourceColumn: Round
+
+	column 'Circuit Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ac5b90b0-45fd-4920-9dd8-b67b903a4c6e
+		summarizeBy: none
+		sourceColumn: Circuit Id
+
+	/// Grand Prix name, e.g. Australian Grand Prix. The same name repeats across seasons.
+	column Race
+		dataType: string
+		lineageTag: d6e5ae2c-6c10-4e9e-9ad7-9ec89596d13c
+		summarizeBy: none
+		sourceColumn: Race
+
+	/// Calendar date the race took place.
+	column 'Race Date'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: b969777d-7263-4cac-a8af-8a74731b2c27
+		summarizeBy: none
+		sourceColumn: Race Date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// True when the Grand Prix has race results in the data. Scheduled races that have not been run yet are false.
+	column 'Has Results' = COUNTROWS(RELATEDTABLE('Race Results')) > 0
+		dataType: boolean
+		lineageTag: 559f0086-5993-4a11-913e-db6905374017
+		summarizeBy: none
+
+	/// Points awarded to the Grand Prix winner under the scoring system of that season. Used to put points from different scoring systems on one scale.
+	column 'Winner Points' = MAXX(FILTER(RELATEDTABLE('Race Results'), 'Race Results'[Finish Position] = 1), 'Race Results'[Points])
+		dataType: double
+		formatString: 0.##
+		lineageTag: fa07caca-b0ff-4873-b0cc-a4f0af2720b1
+		summarizeBy: none
+
+	/// Points awarded to the second-placed finisher. Together with winner points it shows when the scoring system changed.
+	column 'Runner-up Points' = MAXX(FILTER(RELATEDTABLE('Race Results'), 'Race Results'[Finish Position] = 2), 'Race Results'[Points])
+		dataType: double
+		formatString: 0.##
+		lineageTag: 8dcb6cd5-1662-4ed3-acaf-ff853c410121
+		summarizeBy: none
+
+	/// Points awarded to the sprint winner, blank when the weekend had no sprint.
+	column 'Sprint Winner Points' = MAXX(FILTER(RELATEDTABLE('Sprint Results'), 'Sprint Results'[Finish Position] = 1), 'Sprint Results'[Points])
+		dataType: double
+		formatString: 0.##
+		lineageTag: 36f57975-cd72-4a21-afee-18d6ea06e746
+		summarizeBy: none
+
+	/// Laps completed by the winner (most laps completed by any entry). Used to place pit stops as a share of race distance.
+	column 'Race Laps' = MAXX(RELATEDTABLE('Race Results'), 'Race Results'[Laps Completed])
+		dataType: int64
+		formatString: 0
+		lineageTag: 90d622b7-80e7-468a-8650-14861bba1a2b
+		summarizeBy: none
+
+	partition Race = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\races.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  Cleaned = Table.ReplaceValue(Promoted, "\N", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				  Selected = Table.SelectColumns(Cleaned, {"raceId", "year", "round", "circuitId", "name", "date"}),
+				  Renamed = Table.RenameColumns(Selected, {{"raceId", "Race Id"}, {"year", "Season Year"}, {"round", "Round"}, {"circuitId", "Circuit Id"}, {"name", "Race"}, {"date", "Race Date"}}),
+				  Typed = Table.TransformColumnTypes(Renamed, {{"Race Id", Int64.Type}, {"Season Year", Int64.Type}, {"Round", Int64.Type}, {"Circuit Id", Int64.Type}, {"Race", type text}, {"Race Date", type date}}, "en-US")
+				in
+				  Typed
+
+	annotation PBI_ResultType = Table
+

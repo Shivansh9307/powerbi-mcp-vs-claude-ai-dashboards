@@ -1,0 +1,90 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "a6c7d8e9f0a1b2c3d4e5",
+  "displayName": "F1 Through the Eras",
+  "displayOption": "FitToPage",
+  "width": 1920,
+  "height": 1080,
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#0F1115'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspace": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#0F1115'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "ad4d2e32cd112c5e6969",
+      "target": "3579ecbc55ee90245d95",
+      "type": "NoFilter"
+    },
+    {
+      "source": "ad4d2e32cd112c5e6969",
+      "target": "66f0200ed893a05a5bf7",
+      "type": "NoFilter"
+    },
+    {
+      "source": "ad4d2e32cd112c5e6969",
+      "target": "b8394d669726305dcf25",
+      "type": "NoFilter"
+    },
+    {
+      "source": "ad4d2e32cd112c5e6969",
+      "target": "76f5e5a44f184a2fb0ae",
+      "type": "NoFilter"
+    },
+    {
+      "source": "ad4d2e32cd112c5e6969",
+      "target": "c3f2fae93abb0d8e8a90",
+      "type": "NoFilter"
+    },
+    {
+      "source": "ad4d2e32cd112c5e6969",
+      "target": "f98fcc83700ab6f444e0",
+      "type": "NoFilter"
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "b1d2e3f4a5b6c7d8e9f0",
+  "displayName": "Driver Intelligence",
+  "displayOption": "FitToPage",
+  "width": 1920,
+  "height": 1080,
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#0F1115'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspace": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#0F1115'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "1de314646d2c760cd88b",
+      "target": "6d9aa0f561ba613d1dce",
+      "type": "NoFilter"
+    },
+    {
+      "source": "1de314646d2c760cd88b",
+      "target": "5500e1ba91e2f37e0a3c",
+      "type": "NoFilter"
+    },
+    {
+      "source": "1de314646d2c760cd88b",
+      "target": "f2bb8d964309920a07ca",
+      "type": "NoFilter"
+    },
+    {
+      "source": "1de314646d2c760cd88b",
+      "target": "f2884ddb7864441cac61",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f2bb8d964309920a07ca",
+      "target": "6d9aa0f561ba613d1dce",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f2bb8d964309920a07ca",
+      "target": "5500e1ba91e2f37e0a3c",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f2bb8d964309920a07ca",
+      "target": "1de314646d2c760cd88b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f2bb8d964309920a07ca",
+      "target": "f2884ddb7864441cac61",
+      "type": "NoFilter"
+    }
+  ],
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "41fe4224dbd0d2bf4d33",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Driver"
+              }
+            },
+            "Property": "Driver"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      }
+    ]
+  },
+  "pageBinding": {
+    "name": "Pod",
+    "type": "Drillthrough",
+    "parameters": [
+      {
+        "name": "Param_41fe4224dbd0d2bf4d33",
+        "boundFilter": "41fe4224dbd0d2bf4d33",
+        "fieldExpr": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Driver"
+              }
+            },
+            "Property": "Driver"
+          }
+        }
+      }
+    ]
+  }
+}

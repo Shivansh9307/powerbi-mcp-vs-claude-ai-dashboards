@@ -1,0 +1,1337 @@
+/// Final classification of every driver in every Grand Prix. Grain: one row per driver per race. Points use the scoring system of the season.
+table 'Race Results'
+	lineageTag: 5d3ee5d1-4ee1-4bb7-b5f2-894961ac0f2b
+
+	/// Result rows in the selection: every driver listed for a Grand Prix, including drivers who did not qualify or were withdrawn. Use Starts for cars that actually started.
+	measure 'Race Entries' = COUNTROWS('Race Results')
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: cfa32147-b3e5-4764-9b0e-d8c3813e61e6
+
+	/// Grand Prix victories: entries with an official finishing position of 1. Excludes sprint wins, see Sprint Wins.
+	measure Wins = CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Finish Position] = 1)
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 32b28d27-033c-4100-a249-30d76dafcabd
+
+	/// Top-three finishes (positions 1 to 3) in a Grand Prix. Unclassified entries are not counted.
+	measure Podiums = CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Finish Position] IN {1, 2, 3})
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 8459c956-ccc5-45ee-9736-7091f127f752
+
+	/// Races started from first on the grid, as recorded after penalties. A grid slot of 0 (pit lane or unrecorded) and a missing grid are never counted as pole.
+	measure 'Pole Positions' = CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Started] = TRUE(), 'Race Results'[Grid Position] = 1)
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 759fa81d-c115-4b92-98c8-ac60aaa67a87
+
+	/// Races in which the driver set the quickest lap of the race (fastest lap rank 1). Fastest lap data is only recorded from 2004.
+	measure 'Fastest Laps' = CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Fastest Lap Rank] = 1)
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 3f29ae4a-be4a-4073-9cad-1b3d4a2a7f65
+
+	/// Distinct drivers who started at least one Grand Prix in the selection. Drivers who only failed to qualify, failed to prequalify or were withdrawn are not counted.
+	measure '# Drivers Started' = CALCULATE(DISTINCTCOUNT('Race Results'[Driver Id]), 'Race Results'[Started] = TRUE())
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 42c04102-ad0e-4e0e-a24a-bd729ad1e9b1
+
+	/// Distinct constructors with at least one car starting a Grand Prix in the selection. Constructors renamed over time count as separate teams because the source has no lineage field.
+	measure '# Constructors Started' = CALCULATE(DISTINCTCOUNT('Race Results'[Constructor Id]), 'Race Results'[Started] = TRUE())
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 2c5e352e-7742-44b0-bdda-db97cdeff00e
+
+	/// Championship points scored by drivers in Grand Prix races, using the scoring system in force that season. Excludes sprint points, see Sprint Points.
+	measure 'Driver Points' = SUM('Race Results'[Points])
+		formatString: General Number
+		displayFolder: Points
+		lineageTag: 89bf3b66-5512-444f-aeb7-a1bfcfe13eb2
+
+	/// Wins as a share of starts.
+	measure 'Win Rate (%)' = DIVIDE([Wins], [Starts])
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: 9a62abe7-96e4-42ae-9e9f-9408b7afb990
+
+	/// Distinct drivers who won at least one Grand Prix in the current selection.
+	measure '# Race Winners' = COUNTROWS(FILTER(VALUES('Driver'[Driver]), [Wins] > 0))
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: f6d404d6-f035-4b24-b422-dfca608964f3
+
+	/// Distinct circuits that hosted at least one Grand Prix in the current selection (races with results only).
+	measure '# Circuits Used' = COUNTROWS(DISTINCT(SELECTCOLUMNS('Race Results', "c", RELATED('Race'[Circuit Id]))))
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: f720c85f-9401-4eb4-815b-8d2d94f67349
+
+	/// World championships awarded in completed seasons: drivers' titles plus constructors' titles (constructors' from 1958). Seasons in progress award none. With a driver selected only that driver's titles count; with a constructor selected, its constructors' titles plus drivers' titles won in its cars. Circuit filters are ignored because titles belong to seasons.
+	measure Titles = COALESCE([Driver Titles], 0) + IF(ISFILTERED('Driver'[Driver]) && NOT ISFILTERED('Constructor'[Constructor]), 0, COALESCE([Constructor Titles], 0))
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 9afe0112-1ea6-44de-8a58-ead7e2851cda
+
+	/// Rank of each driver by Grand Prix wins within the current selection (1 = most wins). Used to keep the top 10 in the leaderboard.
+	measure 'Driver Wins Rank' = IF([Wins] > 0, RANKX(ALLSELECTED('Driver'[Driver]), [Wins], , DESC, Skip))
+		formatString: 0
+		isHidden
+		displayFolder: Helpers
+		lineageTag: 834a359f-966f-4209-8819-47a9118dbe4f
+
+	/// Rank of each constructor by Grand Prix wins within the current selection (1 = most wins). Used to keep the top 10 in the leaderboard.
+	measure 'Constructor Wins Rank' = IF([Wins] > 0, RANKX(ALLSELECTED('Constructor'[Constructor]), [Wins], , DESC, Skip))
+		formatString: 0
+		isHidden
+		displayFolder: Helpers
+		lineageTag: 67da9377-3019-441e-a624-13c365591ebb
+
+	/// Sentence summarising the span and size of the current selection. Built only from filtered data.
+	measure 'Insight Span' =
+			VAR _from = MINX('Race Results', RELATED('Race'[Season Year]))
+			VAR _to = MAXX('Race Results', RELATED('Race'[Season Year]))
+			VAR _span = IF(_from = _to, FORMAT(_from, "0"), _from & " to " & _to)
+			VAR _gp = [# Races Held]
+			VAR _d = [# Drivers Started]
+			VAR _c = [# Constructors Started]
+			VAR _ci = [# Circuits Used]
+			RETURN IF(NOT ISBLANK(_from), _span & ": " & FORMAT(_gp, "#,##0") & IF(_gp = 1, " Grand Prix, ", " Grands Prix, ") & FORMAT(_d, "#,##0") & IF(_d = 1, " driver, ", " drivers, ") & FORMAT(_c, "#,##0") & IF(_c = 1, " team, ", " teams, ") & FORMAT(_ci, "#,##0") & IF(_ci = 1, " circuit.", " circuits."))
+		formatString: @
+		displayFolder: Insights
+		lineageTag: 9e7c7147-b176-4ed1-8eaa-f660ce010232
+
+	/// Sentence naming the driver with the most wins in the current selection and their share of the Grands Prix in view.
+	measure 'Insight Top Driver' =
+			VAR _top = TOPN(1, FILTER(VALUES('Driver'[Driver]), [Wins] > 0), [Wins], DESC)
+			VAR _name = MAXX(_top, 'Driver'[Driver])
+			VAR _wins = MAXX(_top, [Wins])
+			RETURN
+			    IF(
+			        NOT ISBLANK(_name),
+			        _name & " leads the drivers: " & FORMAT(_wins, "#,##0") & " wins, " & FORMAT(DIVIDE(_wins, [# Races Held]), "0%") & " of races in view."
+			    )
+		formatString: @
+		displayFolder: Insights
+		lineageTag: 6c517aa0-4f1c-4777-8b32-5c0366870692
+
+	/// Sentence naming the constructor with the most wins in the current selection and its share of the Grands Prix in view.
+	measure 'Insight Top Team' =
+			VAR _top = TOPN(1, FILTER(VALUES('Constructor'[Constructor]), [Wins] > 0), [Wins], DESC)
+			VAR _name = MAXX(_top, 'Constructor'[Constructor])
+			VAR _wins = MAXX(_top, [Wins])
+			RETURN
+			    IF(
+			        NOT ISBLANK(_name),
+			        _name & " leads the constructors: " & FORMAT(_wins, "#,##0") & " wins, " & FORMAT(DIVIDE(_wins, [# Races Held]), "0%") & " of races in view."
+			    )
+		formatString: @
+		displayFolder: Insights
+		lineageTag: e184d6cc-e534-4ce2-9f4e-54ef774a76ab
+
+	/// Sentence naming who won the most championships in the current selection: drivers' titles, or constructors' titles when a constructor is selected without a driver. Ties are listed together.
+	measure 'Insight Most Titles' =
+			VAR _teamView = ISFILTERED('Constructor'[Constructor]) && NOT ISFILTERED('Driver'[Driver])
+			VAR _topDrivers = TOPN(1, FILTER(VALUES('Driver'[Driver]), [Driver Titles] > 0), [Driver Titles], DESC)
+			VAR _topTeams = TOPN(1, FILTER(VALUES('Constructor'[Constructor]), [Constructor Titles] > 0), [Constructor Titles], DESC)
+			VAR _driverN = MAXX(_topDrivers, [Driver Titles])
+			VAR _teamN = MAXX(_topTeams, [Constructor Titles])
+			VAR _driverNames = CONCATENATEX(_topDrivers, 'Driver'[Driver], " and ", 'Driver'[Driver])
+			VAR _teamNames = CONCATENATEX(_topTeams, 'Constructor'[Constructor], " and ", 'Constructor'[Constructor])
+			RETURN
+			    IF(
+			        _teamView,
+			        IF(
+			            NOT ISBLANK(_teamN),
+			            _teamNames & IF(COUNTROWS(_topTeams) > 1, " share the most constructors' titles: " & _teamN & " each.", " has the most constructors' titles: " & _teamN & ".")
+			        ),
+			        IF(
+			            NOT ISBLANK(_driverN),
+			            _driverNames & IF(COUNTROWS(_topDrivers) > 1, " share the most drivers' titles: " & _driverN & " each.", " has the most drivers' titles: " & _driverN & ".")
+			        )
+			    )
+		formatString: @
+		displayFolder: Insights
+		lineageTag: 8985723a-16cb-45ca-a0a3-1f64cb2181e6
+
+	/// Sentence about the most open season in the current selection (most different race winners). When a driver or constructor is selected it names their best season by wins instead.
+	measure 'Insight Open Season' =
+			VAR _focused = ISFILTERED('Driver'[Driver]) || ISFILTERED('Constructor'[Constructor])
+			VAR _openTop = TOPN(1, FILTER(VALUES('Season'[Season]), [# Race Winners] > 0), [# Race Winners], DESC, 'Season'[Season], DESC)
+			VAR _bestTop = TOPN(1, FILTER(VALUES('Season'[Season]), [Wins] > 0), [Wins], DESC, 'Season'[Season], DESC)
+			VAR _openSeason = MAXX(_openTop, 'Season'[Season])
+			VAR _openN = MAXX(_openTop, [# Race Winners])
+			VAR _bestSeason = MAXX(_bestTop, 'Season'[Season])
+			VAR _bestN = MAXX(_bestTop, [Wins])
+			RETURN
+			    IF(
+			        _focused,
+			        IF(NOT ISBLANK(_bestSeason), "Best season: " & _bestSeason & " with " & _bestN & IF(_bestN = 1, " win.", " wins.")),
+			        IF(NOT ISBLANK(_openSeason), _openSeason & " was the most open season: " & _openN & " different drivers won a race.")
+			    )
+		formatString: @
+		displayFolder: Insights
+		lineageTag: a4da429e-7ac0-4ef7-8718-cda2acf1b58b
+
+	/// Recency rank of each Grand Prix among the races won in the current selection (1 = most recent). Slicer filters apply; the table columns around it do not. Used to keep the latest 10 races in the Overview table.
+	measure 'Latest Race Rank' =
+			VAR _date = MAX('Race'[Race Date])
+			RETURN
+			    IF(
+			        [Wins] > 0,
+			        CALCULATE(
+			            RANKX(FILTER(ALLSELECTED('Race'), [Wins] > 0), 'Race'[Race Date], _date, DESC, Skip),
+			            ALLSELECTED('Driver'),
+			            ALLSELECTED('Constructor'),
+			            ALLSELECTED('Race Results')
+			        )
+			    )
+		formatString: 0
+		isHidden
+		displayFolder: Helpers
+		lineageTag: 7caa7943-43f4-4d82-abe3-739743feb21c
+
+	/// Race starts: result rows whose status group is not Did not start. Entries that failed to qualify, failed to prequalify, broke the 107% rule or were withdrawn are excluded.
+	measure Starts = CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Started] = TRUE())
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 34e545b8-49ee-4522-bcac-66a20b033e0c
+
+	/// Starts that received an official finishing position (numeric position code). Retirements, disqualifications and exclusions are not classified.
+	measure 'Classified Finishes' = CALCULATE(COUNTROWS('Race Results'), NOT ISBLANK('Race Results'[Finish Position]))
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: e77e5d10-9ba7-44cb-9776-f5d9a7c89359
+
+	/// Starts that ended in retirement: mechanical, accident or other did-not-finish. Disqualifications and did-not-start entries are not retirements.
+	measure Retirements = CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Status Group] IN {"Mechanical DNF", "Accident DNF", "Other DNF"})
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 2c35394a-1ccd-47ae-ab40-962472ee8a99
+
+	/// Starts that ended with a car failure such as engine, gearbox, hydraulics or electrics.
+	measure 'Mechanical Retirements' = CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Status Group] = "Mechanical DNF")
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 4dddcd81-d5ca-4433-b9fe-b043d9064866
+
+	/// Starts that ended in an accident, collision, spin or damage.
+	measure 'Accident Retirements' = CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Status Group] = "Accident DNF")
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 2132e850-7602-4118-9903-c6ed0c53f743
+
+	/// Share of starts that ended in retirement (mechanical, accident or other).
+	measure 'Retirement Rate' = DIVIDE([Retirements], [Starts])
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: 5406db17-cc11-4f5d-bf3c-0ae86c32eb9e
+
+	/// Share of starts that ended with a car failure.
+	measure 'Mechanical Retirement Rate' = DIVIDE([Mechanical Retirements], [Starts])
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: ef0b025a-7e06-4404-944b-a5ddc02d278b
+
+	/// Share of starts that ended in an accident, collision or spin.
+	measure 'Accident Retirement Rate' = DIVIDE([Accident Retirements], [Starts])
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: da4b07a3-4c66-4b32-bd97-fdca620f4c69
+
+	/// Share of starts that received an official classified position.
+	measure 'Classified Finish Rate' = DIVIDE([Classified Finishes], [Starts])
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: 37731d9e-9cbc-4574-a0da-7d0744672f49
+
+	/// Top-three finishes as a share of starts.
+	measure 'Podium Rate' = DIVIDE([Podiums], [Starts])
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: bac52fae-5c91-42a9-bbf9-2ed6accaea3b
+
+	/// Poles as a share of starts.
+	measure 'Pole Rate' = DIVIDE([Pole Positions], [Starts])
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: e1c6afba-d1bc-45a4-a19d-8c35e43590a6
+
+	/// Share of pole starts that ended in a win (wins from first on the grid divided by starts from first on the grid).
+	measure 'Pole to Win Conversion' = DIVIDE(CALCULATE([Wins], 'Race Results'[Grid Position] = 1), [Pole Positions])
+		formatString: 0%
+		displayFolder: Rates
+		lineageTag: c8fd0c33-5da4-4574-8ae2-9aa552216b73
+
+	/// Wins of the most successful driver in the selection as a share of all wins in the selection. High values mean one driver dominated.
+	measure 'Top Driver Share of Wins' = DIVIDE(MAXX(VALUES('Driver'[Driver]), [Wins]), [Wins])
+		formatString: 0%
+		displayFolder: Rates
+		lineageTag: 222ce576-7841-4046-b2a4-4b67ef8dea02
+
+	/// Wins of the most successful constructor in the selection as a share of all wins in the selection.
+	measure 'Top Constructor Share of Wins' = DIVIDE(MAXX(VALUES('Constructor'[Constructor]), [Wins]), [Wins])
+		formatString: 0%
+		displayFolder: Rates
+		lineageTag: d363a290-9c34-4e8a-a97c-be8ff13782a9
+
+	/// Mean classified finishing position over starts that were classified. Unclassified starts are ignored, not counted as zero.
+	measure 'Average Finish' = CALCULATE(AVERAGE('Race Results'[Finish Position]), 'Race Results'[Started] = TRUE())
+		formatString: 0.0
+		displayFolder: Rates
+		lineageTag: 1aab8862-1ce0-4984-a236-1671158adc57
+
+	/// Mean starting slot over starts with a recorded grid of 1 or more. Pit lane or unrecorded (0) and missing grids are excluded.
+	measure 'Average Grid' = CALCULATE(AVERAGE('Race Results'[Grid Position]), 'Race Results'[Started] = TRUE(), 'Race Results'[Grid Position] >= 1)
+		formatString: 0.0
+		displayFolder: Rates
+		lineageTag: 9ccf8577-01ae-454d-8f52-d96dbb4dc5a3
+
+	/// Mean of grid slot minus finishing position over classified starts with a recorded grid of 1 or more. Positive means places gained during the race.
+	measure 'Positions Gained' = AVERAGEX(FILTER('Race Results', NOT ISBLANK('Race Results'[Finish Position]) && NOT ISBLANK('Race Results'[Grid Position]) && 'Race Results'[Grid Position] >= 1), 'Race Results'[Grid Position] - 'Race Results'[Finish Position])
+		formatString: +0.0;-0.0;0.0
+		displayFolder: Rates
+		lineageTag: 61c5359c-7b50-4115-bfd8-c95266c65860
+
+	/// Championship points scored in Grands Prix plus sprints, each under the scoring system of its own season. Not comparable across eras; use Era-Normalised Points for that.
+	measure 'Recorded Points' = [Driver Points] + COALESCE([Sprint Points], 0)
+		formatString: #,##0.##
+		displayFolder: Points
+		lineageTag: 2e15aa8d-4833-4133-b476-fd54fc0caaa5
+
+	/// Recorded points divided by the points a winner would have scored in every race and sprint the driver or team started. 100% means a win every time; it lets seasons with different scoring systems be compared.
+	measure 'Era-Normalised Points' = DIVIDE([Recorded Points], SUMX(FILTER('Race Results', 'Race Results'[Started] = TRUE()), RELATED('Race'[Winner Points]) + COALESCE(RELATED('Race'[Sprint Winner Points]), 0)))
+		formatString: 0.0%
+		displayFolder: Points
+		lineageTag: e2ed2faf-50a8-450a-a593-db604a9d3973
+
+	/// Grands Prix run in the season whatever driver or constructor is selected. Denominator for shares of the season.
+	measure 'Season Races Held' = CALCULATE([# Races Held], REMOVEFILTERS('Driver'), REMOVEFILTERS('Constructor'))
+		formatString: #,##0
+		isHidden
+		displayFolder: Helpers
+		lineageTag: f18ead36-e891-43d8-b23a-838c0bbec7aa
+
+	/// Win share of the season multiplied by share of all points scored in the season, for the driver or team in view. Close to 100% means a near clean sweep; read it per season, not across decades.
+	measure 'Dominance Index' =
+			VAR _seasonPoints = CALCULATE([Recorded Points], REMOVEFILTERS('Driver'), REMOVEFILTERS('Constructor'))
+			RETURN DIVIDE([Wins], [Season Races Held]) * DIVIDE([Recorded Points], _seasonPoints)
+		formatString: 0.0%
+		displayFolder: Points
+		lineageTag: 9cdd73d5-512a-4fd2-b8d0-14c73fc3befb
+
+	/// Dominance Index of the most dominant driver in each season in view.
+	measure 'Season Dominance (top driver)' = MAXX(FILTER(VALUES('Driver'[Driver]), [Wins] > 0), [Dominance Index])
+		formatString: 0.0%
+		displayFolder: Points
+		lineageTag: 04000ae3-dba3-4d72-8293-489194f636ec
+
+	/// Starting slot as text for detail tables: the slot number, Pit lane / unrecorded when the source records 0, and Not recorded when the grid is missing. A blank grid is never shown as 0.
+	measure 'Grid Slot Label' =
+			VAR _n = COUNTROWS('Race Results')
+			VAR _missing = COUNTROWS(FILTER('Race Results', ISBLANK('Race Results'[Grid Position])))
+			VAR _pit = COUNTROWS(FILTER('Race Results', NOT ISBLANK('Race Results'[Grid Position]) && 'Race Results'[Grid Position] = 0))
+			RETURN
+			SWITCH(TRUE(), _n = 0, BLANK(), _n = _missing, "Not recorded", _n = _pit, "Pit lane / unrecorded", _n = 1, FORMAT(MAX('Race Results'[Grid Position]), "0"), BLANK())
+		formatString: @
+		displayFolder: Labels
+		lineageTag: e26ea708-5f62-451c-b6f6-a3613d88fa52
+
+	/// Number of seasons in the selection that still have races to run and have at least one start in view.
+	measure 'In-progress Seasons in View' = COUNTROWS(FILTER(VALUES('Season'[Season]), CALCULATE(MIN('Season'[Complete Flag])) = 0 && [Starts] > 0))
+		formatString: 0
+		isHidden
+		displayFolder: Messages
+		lineageTag: cf19b783-d014-429b-8184-ef865a79594b
+
+	/// One line describing the active selection, for example Seasons 1950–2026 · No filters active. Built from the sync slicers (era, season range, driver, constructor, circuit) so every page shows what it is filtered to.
+	measure 'Active Filters' =
+			VAR _lo = MIN('Season'[Season])
+			VAR _hi = MAX('Season'[Season])
+			VAR _range = IF(_lo = _hi, "Season " & _lo, "Seasons " & _lo & "–" & _hi)
+			VAR _era = IF(ISFILTERED('Season'[Era]), "Era " & CONCATENATEX(VALUES('Season'[Decade]), 'Season'[Decade] & "s", ", ", 'Season'[Decade], ASC), "")
+			VAR _range_active = _lo > MINX(ALL('Season'[Season]), 'Season'[Season]) || _hi < MAXX(ALL('Season'[Season]), 'Season'[Season])
+			VAR _nd = COUNTROWS(VALUES('Driver'[Driver]))
+			VAR _drv = IF(ISFILTERED('Driver'[Driver]), IF(_nd <= 2, CONCATENATEX(VALUES('Driver'[Driver]), 'Driver'[Driver], " & "), _nd & " drivers"), "")
+			VAR _nc = COUNTROWS(VALUES('Constructor'[Constructor]))
+			VAR _con = IF(ISFILTERED('Constructor'[Constructor]), IF(_nc <= 2, CONCATENATEX(VALUES('Constructor'[Constructor]), 'Constructor'[Constructor], " & "), _nc & " constructors"), "")
+			VAR _ncir = COUNTROWS(VALUES('Circuit'[Circuit]))
+			VAR _cir = IF(ISFILTERED('Circuit'[Circuit]), IF(_ncir <= 2, CONCATENATEX(VALUES('Circuit'[Circuit]), 'Circuit'[Circuit], " & "), _ncir & " circuits"), "")
+			VAR _nct = COUNTROWS(VALUES('Circuit'[Country]))
+			VAR _cty = IF(ISFILTERED('Circuit'[Country]), IF(_nct <= 2, CONCATENATEX(VALUES('Circuit'[Country]), 'Circuit'[Country], " & "), _nct & " countries"), "")
+			VAR _parts = FILTER(UNION(ROW("p", _era), ROW("p", _drv), ROW("p", _con), ROW("p", _cir), ROW("p", _cty)), [p] <> "")
+			VAR _list = CONCATENATEX(_parts, [p], " · ")
+			RETURN _range & IF(COUNTROWS(_parts) = 0 && NOT _range_active, " · No filters active", IF(_list = "", "", " · " & _list))
+		formatString: @
+		displayFolder: Messages
+		lineageTag: 4365cb74-e545-4766-a989-9ca6a140b53b
+
+	/// Warning shown only when the selection includes a season that still has races to run. Blank otherwise.
+	measure 'Partial Season Banner' =
+			VAR _p = FILTER(VALUES('Season'[Season]), CALCULATE(MIN('Season'[Complete Flag])) = 0 && [Starts] > 0)
+			VAR _y = MAXX(_p, 'Season'[Season])
+			RETURN IF(NOT ISBLANK(_y), "Season in progress: " & _y & " has " & LOOKUPVALUE('Season'[Races With Results], 'Season'[Season], _y) & " of " & LOOKUPVALUE('Season'[Races Scheduled], 'Season'[Season], _y) & " races run. It is included in counts but awards no title until it ends.", "")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: ba90f489-38a0-468e-aa3f-0b6591c53ea3
+
+	/// Shown only when the current filters leave no race starts, for example a driver and constructor who never raced together.
+	measure 'Empty State Message' = IF(COALESCE([Starts], 0) = 0, "No Grands Prix match this combination of filters. Remove a filter or press Reset filters.")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: 78c6f752-f7b1-42a5-ab3e-074d09b1d6bb
+
+	/// Sentence comparing the pole-to-win conversion of the first and last decade in view (decades with at least 10 poles).
+	measure 'Insight Pole Conversion' =
+			VAR _dec = FILTER(VALUES('Season'[Decade]), CALCULATE([Pole Positions]) >= 10)
+			VAR _a = MINX(_dec, 'Season'[Decade])
+			VAR _b = MAXX(_dec, 'Season'[Decade])
+			VAR _ra = CALCULATE([Pole to Win Conversion], KEEPFILTERS('Season'[Decade] = _a))
+			VAR _rb = CALCULATE([Pole to Win Conversion], KEEPFILTERS('Season'[Decade] = _b))
+			RETURN IF(NOT ISBLANK(_a), IF(_a <> _b, "A pole's chance of winning " & IF(_rb >= _ra, "rose", "fell") & " from " & FORMAT(_ra, "0%") & " in the " & _a & "s to " & FORMAT(_rb, "0%") & " in the " & _b & "s.", "From pole, " & FORMAT(_ra, "0%") & " of starts ended in a win in the " & _a & "s."))
+		formatString: @
+		displayFolder: Insights
+		lineageTag: e9641dc6-7da2-4763-90c6-f8887fe9e776
+
+	/// Sentence comparing the retirement rate of the first and last decade in view (decades with at least 100 starts).
+	measure 'Insight Retirement' =
+			VAR _dec = FILTER(VALUES('Season'[Decade]), [Starts] >= 100)
+			VAR _a = MINX(_dec, 'Season'[Decade])
+			VAR _b = MAXX(_dec, 'Season'[Decade])
+			VAR _ra = CALCULATE([Retirement Rate], KEEPFILTERS('Season'[Decade] = _a))
+			VAR _rb = CALCULATE([Retirement Rate], KEEPFILTERS('Season'[Decade] = _b))
+			RETURN IF(NOT ISBLANK(_a), IF(_a <> _b, "Starts ending in retirement " & IF(_rb >= _ra, "rose", "fell") & " from " & FORMAT(_ra, "0%") & " in the " & _a & "s to " & FORMAT(_rb, "0%") & " in the " & _b & "s.", FORMAT(_ra, "0%") & " of starts ended in retirement in the " & _a & "s."))
+		formatString: @
+		displayFolder: Insights
+		lineageTag: 6c9911d0-5edf-41af-9c4c-1bf6d9d75524
+
+	/// Sentence comparing the most successful driver's share of wins in the first and last decade in view (decades with at least 10 wins).
+	measure 'Insight Concentration' =
+			VAR _dec = FILTER(VALUES('Season'[Decade]), [Wins] >= 10)
+			VAR _a = MINX(_dec, 'Season'[Decade])
+			VAR _b = MAXX(_dec, 'Season'[Decade])
+			VAR _ra = CALCULATE([Top Driver Share of Wins], KEEPFILTERS('Season'[Decade] = _a))
+			VAR _rb = CALCULATE([Top Driver Share of Wins], KEEPFILTERS('Season'[Decade] = _b))
+			RETURN IF(NOT ISBLANK(_a), IF(_a <> _b, "The top driver's share of wins " & IF(_rb >= _ra, "rose", "fell") & " from " & FORMAT(_ra, "0%") & " in the " & _a & "s to " & FORMAT(_rb, "0%") & " in the " & _b & "s.", "The top driver took " & FORMAT(_ra, "0%") & " of wins in the " & _a & "s."))
+		formatString: @
+		displayFolder: Insights
+		lineageTag: 9ac5e8b7-e7da-4cc2-9645-d684ca04b4f3
+
+	/// Page headline: the first available finding about the selection, falling back to the size of the selection. When the filters leave no starts it shows the empty-state message instead.
+	measure 'Headline Insight' = IF(COALESCE([Starts], 0) = 0, [Empty State Message], COALESCE([Insight Pole Conversion], [Insight Retirement], [Insight Concentration], [Insight Span]))
+		formatString: @
+		displayFolder: Insights
+		lineageTag: ef61098c-e745-424e-b29c-3c91e4e568f7
+
+	/// Value of the metric chosen in the Evolution Metric selector (Grands Prix, Starts, Drivers, Constructors, Wins or Retirement rate). Shows Grands Prix when nothing is chosen. Seasons still in progress are drawn separately by Evolution Value (in progress).
+	measure 'Evolution Value' = SWITCH(SELECTEDVALUE('Evolution Metric'[Evolution Metric Order], 0), 0, [# Races Held], 1, [Starts], 2, [# Drivers Started], 3, [# Constructors Started], 4, [Wins], 5, [Retirement Rate])
+		displayFolder: Switches
+		lineageTag: 38a4deb7-a8e4-43c5-8fd5-2b552690a654
+
+		formatStringDefinition = IF(SELECTEDVALUE('Evolution Metric'[Evolution Metric Order], 0) = 5, "0%", "#,##0")
+
+	/// Evolution Value for seasons whose calendar is complete.
+	measure 'Evolution Value (complete)' = IF(COALESCE(CALCULATE(MIN('Season'[Complete Flag])), 1) = 1, [Evolution Value])
+		displayFolder: Switches
+		lineageTag: 5610a668-984e-462d-97f6-93d7160883de
+
+		formatStringDefinition = IF(SELECTEDVALUE('Evolution Metric'[Evolution Metric Order], 0) = 5, "0%", "#,##0")
+
+	/// Evolution Value for a season still in progress, plus the season before it so the dotted line connects. Partial seasons are therefore visually distinct.
+	measure 'Evolution Value (in progress)' =
+			VAR _s = MAX('Season'[Season])
+			VAR _nextComplete = LOOKUPVALUE('Season'[Complete Flag], 'Season'[Season], _s + 1)
+			VAR _thisComplete = CALCULATE(MIN('Season'[Complete Flag]))
+			RETURN IF(_thisComplete = 0 || _nextComplete = 0, [Evolution Value])
+		displayFolder: Switches
+		lineageTag: a32a35f4-fcef-47b6-b611-de48c93a9f43
+
+		formatStringDefinition = IF(SELECTEDVALUE('Evolution Metric'[Evolution Metric Order], 0) = 5, "0%", "#,##0")
+
+	/// Chart title that follows the metric switch and flags an in-progress season.
+	measure 'Evolution Title' = "Evolution by season: " & SWITCH(SELECTEDVALUE('Evolution Metric'[Evolution Metric Order], 0), 0, "Grands Prix", 1, "starts", 2, "drivers", 3, "constructors", 4, "wins", 5, "retirement rate") & IF([In-progress Seasons in View] > 0, " (dotted: season in progress)", "")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: eb6521b4-5ed8-4cb1-91f1-1cf3481b3212
+
+	/// Value of the metric chosen in the Leaderboard Metric selector (Wins, Podiums, Poles, Titles, Points or Starts) for each driver. Wins when nothing is chosen.
+	measure 'Leaderboard Value' = SWITCH(SELECTEDVALUE('Leaderboard Metric'[Leaderboard Metric Order], 0), 0, [Wins], 1, [Podiums], 2, [Pole Positions], 3, [Titles], 4, [Recorded Points], 5, [Starts])
+		displayFolder: Switches
+		lineageTag: 1ca20fb2-1bf0-4ef2-b992-9ca8906cc2a0
+
+		formatStringDefinition = IF(SELECTEDVALUE('Leaderboard Metric'[Leaderboard Metric Order], 0) = 4, "#,##0.#", "#,##0")
+
+	/// Rank of each driver by the chosen leaderboard metric within the current selection. Keeps the top rows in the driver leaderboards.
+	measure 'Driver Leaderboard Rank' = IF([Leaderboard Value] > 0, RANKX(ALLSELECTED('Driver'[Driver]), [Leaderboard Value], , DESC, Skip))
+		formatString: 0
+		isHidden
+		displayFolder: Helpers
+		lineageTag: db6d8887-4fcd-4de4-bd13-9601a9a42099
+
+	/// Value of the metric chosen in the Constructor Metric selector for each constructor. Titles here are the constructors' championship; Wins when nothing is chosen.
+	measure 'Constructor Leaderboard Value' = SWITCH(SELECTEDVALUE('Constructor Metric'[Constructor Metric Order], 0), 0, [Wins], 1, [Podiums], 2, [Pole Positions], 3, [Constructor Titles], 4, [Recorded Points], 5, [Starts])
+		displayFolder: Switches
+		lineageTag: c622faec-bce4-4f96-8030-fe54ba1db112
+
+		formatStringDefinition = IF(SELECTEDVALUE('Constructor Metric'[Constructor Metric Order], 0) = 4, "#,##0.#", "#,##0")
+
+	/// Rank of each constructor by the chosen metric within the current selection.
+	measure 'Constructor Leaderboard Rank' = IF([Constructor Leaderboard Value] > 0, RANKX(ALLSELECTED('Constructor'[Constructor]), [Constructor Leaderboard Value], , DESC, Skip))
+		formatString: 0
+		isHidden
+		displayFolder: Helpers
+		lineageTag: a6ffe952-8f61-40ef-bfbc-a3a6c6e076db
+
+	/// Rank of each driver by recorded points within the current selection.
+	measure 'Driver Points Rank' = IF([Recorded Points] > 0, RANKX(ALLSELECTED('Driver'[Driver]), [Recorded Points], , DESC, Skip))
+		formatString: 0
+		isHidden
+		displayFolder: Helpers
+		lineageTag: 11aa0310-bf3c-42af-8e87-9dcd4f915d73
+
+	/// Driver leaderboard title that follows the metric switch.
+	measure 'Leaderboard Title Drivers' = "Top drivers by " & SWITCH(SELECTEDVALUE('Leaderboard Metric'[Leaderboard Metric Order], 0), 0, "wins", 1, "podiums", 2, "poles", 3, "titles", 4, "points", 5, "starts")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: 083b7fcf-37a8-4c3b-b074-7dfec829f950
+
+	/// Constructor leaderboard title that follows the metric switch.
+	measure 'Leaderboard Title Constructors' = "Top constructors by " & SWITCH(SELECTEDVALUE('Constructor Metric'[Constructor Metric Order], 0), 0, "wins", 1, "podiums", 2, "poles", 3, "titles", 4, "points", 5, "starts")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: 6308f2b2-38de-432a-9f13-9844e7d3eba1
+
+	/// Share of starts that ended in another retirement: not classified, withdrew, injury, illness or safety.
+	measure 'Other Retirement Rate' = DIVIDE(CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Status Group] = "Other DNF"), [Starts])
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: 5905d8c8-2afe-4c22-9101-5ec57354e758
+
+	/// First season with a start in the selection.
+	measure 'First Season' = MINX(FILTER('Race Results', 'Race Results'[Started]), RELATED('Race'[Season Year]))
+		formatString: 0
+		displayFolder: Career
+		lineageTag: b587ce10-4760-4997-81bc-25f0330fce60
+
+	/// Last season with a start in the selection.
+	measure 'Last Season' = MAXX(FILTER('Race Results', 'Race Results'[Started]), RELATED('Race'[Season Year]))
+		formatString: 0
+		displayFolder: Career
+		lineageTag: 643b3e61-6cc4-4265-9f28-978e200142db
+
+	/// Name of the selected driver, or a note that several or all drivers are in view.
+	measure 'Selected Driver Name' = IF(HASONEVALUE('Driver'[Driver]), VALUES('Driver'[Driver]), IF(ISFILTERED('Driver'[Driver]), COUNTROWS(VALUES('Driver'[Driver])) & " drivers selected", "All drivers"))
+		formatString: @
+		displayFolder: Messages
+		lineageTag: b52d5ce4-27ff-44e9-a28d-8b976c49aa3e
+
+	/// Name of the selected constructor, or a note that several or all constructors are in view.
+	measure 'Selected Constructor Name' = IF(HASONEVALUE('Constructor'[Constructor]), VALUES('Constructor'[Constructor]), IF(ISFILTERED('Constructor'[Constructor]), COUNTROWS(VALUES('Constructor'[Constructor])) & " constructors selected", "All constructors"))
+		formatString: @
+		displayFolder: Messages
+		lineageTag: 74957185-4cc6-49f8-b6e8-205db8f68c0f
+
+	/// Name of the driver chosen for comparison.
+	measure 'Compare Driver Name' = COALESCE(SELECTEDVALUE('Compare Driver'[Compare Driver]), "No second driver chosen")
+		formatString: @
+		displayFolder: Head to head
+		lineageTag: 823a9f12-a9a8-4c6e-abe4-88f925813b84
+
+	/// Grands Prix in view that both the selected driver and the comparison driver started. Blank until two different drivers are chosen.
+	measure 'H2H Races Both Started' =
+			VAR _a = SELECTEDVALUE('Driver'[Driver])
+			VAR _b = SELECTEDVALUE('Compare Driver'[Compare Driver])
+			RETURN IF(ISBLANK(_a) || ISBLANK(_b) || _a = _b, BLANK(), COUNTROWS(FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Started] = TRUE(), 'Driver'[Driver] = _a) > 0 && CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Started] = TRUE(), 'Driver'[Driver] = _b) > 0)))
+		formatString: #,##0
+		displayFolder: Head to head
+		lineageTag: 878041f6-ad15-4381-a3b3-14958d46677c
+
+	/// Races both drivers started in which the selected driver was placed ahead (lower classification order, so retirements are ranked by distance covered).
+	measure 'H2H Driver Ahead' =
+			VAR _a = SELECTEDVALUE('Driver'[Driver])
+			VAR _b = SELECTEDVALUE('Compare Driver'[Compare Driver])
+			RETURN IF(ISBLANK(_a) || ISBLANK(_b) || _a = _b, BLANK(), SUMX(VALUES('Race'[Race Id]), VAR _pa = CALCULATE(MIN('Race Results'[Classification Order]), 'Race Results'[Started] = TRUE(), 'Driver'[Driver] = _a) VAR _pb = CALCULATE(MIN('Race Results'[Classification Order]), 'Race Results'[Started] = TRUE(), 'Driver'[Driver] = _b) RETURN IF(NOT ISBLANK(_pa) && NOT ISBLANK(_pb) && _pa < _pb, 1, 0)))
+		formatString: #,##0
+		displayFolder: Head to head
+		lineageTag: 67744a3a-91b4-449a-aefc-1f95c41c9928
+
+	/// Races both drivers started in which the comparison driver was placed ahead.
+	measure 'H2H Compare Ahead' =
+			VAR _a = SELECTEDVALUE('Driver'[Driver])
+			VAR _b = SELECTEDVALUE('Compare Driver'[Compare Driver])
+			RETURN IF(ISBLANK(_a) || ISBLANK(_b) || _a = _b, BLANK(), SUMX(VALUES('Race'[Race Id]), VAR _pa = CALCULATE(MIN('Race Results'[Classification Order]), 'Race Results'[Started] = TRUE(), 'Driver'[Driver] = _a) VAR _pb = CALCULATE(MIN('Race Results'[Classification Order]), 'Race Results'[Started] = TRUE(), 'Driver'[Driver] = _b) RETURN IF(NOT ISBLANK(_pa) && NOT ISBLANK(_pb) && _pb < _pa, 1, 0)))
+		formatString: #,##0
+		displayFolder: Head to head
+		lineageTag: 47a92865-5f03-4dac-b5e8-685c6a7a1749
+
+	/// Where the selected driver ranks by wins among all drivers who started in the same seasons and filters.
+	measure 'Field Context' =
+			VAR _name = SELECTEDVALUE('Driver'[Driver])
+			VAR _w = [Wins]
+			VAR _rank = RANKX(ALL('Driver'[Driver]), [Wins], _w, DESC, Skip)
+			VAR _field = CALCULATE([# Drivers Started], REMOVEFILTERS('Driver'))
+			RETURN IF(NOT ISBLANK(_name) && _field > 0, _name & " ranks " & _rank & " of " & FORMAT(_field, "#,##0") & " drivers by wins in the seasons and filters in view.", "Choose one driver to see how they rank among the " & FORMAT(_field, "#,##0") & " drivers in view.")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: d7180e7b-c944-4fee-ad08-72f57b97d5eb
+
+	/// Finishing position as text, or why there is none: Retired, Disqualified, Excluded, Withdrawn, Did not qualify or Not classified.
+	measure 'Result Label' =
+			VAR _f = MAX('Race Results'[Finish Position])
+			VAR _t = SELECTEDVALUE('Race Results'[Position Text])
+			RETURN IF(NOT ISBLANK(_f), FORMAT(_f, "0"), SWITCH(_t, "R", "Retired", "D", "Disqualified", "E", "Excluded", "W", "Withdrawn", "F", "Did not qualify", "N", "Not classified", BLANK()))
+		formatString: @
+		displayFolder: Labels
+		lineageTag: 9bf250a1-b038-4786-b0aa-e14d81a2170a
+
+	/// Classified starts with a recorded grid, used for the distribution of positions gained or lost.
+	measure 'Position Change Count' = CALCULATE(COUNTROWS('Race Results'), NOT ISBLANK('Race Results'[Position Change]))
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: ac798866-58be-4e0a-a20d-15d5a8231e80
+
+	/// Mean starting slot of the winners in view. Winners with a grid of 0 (pit lane or unrecorded) or a missing grid are left out.
+	measure 'Winner Grid Slot' = CALCULATE(AVERAGE('Race Results'[Grid Position]), 'Race Results'[Finish Position] = 1, 'Race Results'[Grid Position] >= 1)
+		formatString: 0.0
+		displayFolder: Rates
+		lineageTag: b718357e-187a-41a2-814e-40538bef7a6f
+
+	/// Share of wins that came from pole position.
+	measure 'Winners from Pole Share' = DIVIDE(CALCULATE(COUNTROWS('Race Results'), 'Race Results'[Finish Position] = 1, 'Race Results'[Grid Position] = 1), [Wins])
+		formatString: 0%
+		displayFolder: Rates
+		lineageTag: cb8b2cbb-5499-4a27-b9bf-bb0f9218fa65
+
+	/// Points of the selected constructor in the season in view.
+	measure 'Cmp Points A' = [Recorded Points]
+		formatString: #,##0.#
+		displayFolder: Head to head
+		lineageTag: f6c0c6d5-9ff1-4562-9d76-6e46f0017e08
+
+	/// Points of the comparison constructor in the season in view.
+	measure 'Cmp Points B' =
+			VAR _b = SELECTEDVALUE('Compare Constructor'[Compare Constructor])
+			RETURN IF(NOT ISBLANK(_b), CALCULATE([Recorded Points], REMOVEFILTERS('Constructor'), 'Constructor'[Constructor] = _b))
+		formatString: #,##0.#
+		displayFolder: Head to head
+		lineageTag: 6bb3d769-51b0-4a99-bf2b-dfb49df6e426
+
+	/// Wins of the selected constructor in the season in view.
+	measure 'Cmp Wins A' = IF([Starts] > 0, [Wins] + 0)
+		formatString: #,##0
+		displayFolder: Head to head
+		lineageTag: c574fbe1-0a4c-489a-ae94-4f7385711a90
+
+	/// Wins of the comparison constructor in the season in view.
+	measure 'Cmp Wins B' =
+			VAR _b = SELECTEDVALUE('Compare Constructor'[Compare Constructor])
+			RETURN IF(NOT ISBLANK(_b), CALCULATE(IF([Starts] > 0, [Wins] + 0), REMOVEFILTERS('Constructor'), 'Constructor'[Constructor] = _b))
+		formatString: #,##0
+		displayFolder: Head to head
+		lineageTag: 51665221-b0e4-45c2-aff7-777ec4722da3
+
+	/// Which of the two constructors scored the higher era-normalised points share in the season. Blank when neither raced.
+	measure 'Cmp Ahead' =
+			VAR _b = SELECTEDVALUE('Compare Constructor'[Compare Constructor])
+			VAR _a = SELECTEDVALUE('Constructor'[Constructor])
+			VAR _na = [Era-Normalised Points]
+			VAR _nb = IF(NOT ISBLANK(_b), CALCULATE([Era-Normalised Points], REMOVEFILTERS('Constructor'), 'Constructor'[Constructor] = _b))
+			RETURN IF(ISBLANK(_na) && ISBLANK(_nb), BLANK(), IF(ISBLANK(_nb) || _na > _nb, _a, IF(ISBLANK(_na) || _nb > _na, _b, "Level")))
+		formatString: @
+		displayFolder: Head to head
+		lineageTag: 2e58ec8a-7588-4827-9d1d-416037282c09
+
+	/// Name of the constructor chosen for comparison.
+	measure 'Compare Constructor Name' = COALESCE(SELECTEDVALUE('Compare Constructor'[Compare Constructor]), "No second constructor chosen")
+		formatString: @
+		displayFolder: Head to head
+		lineageTag: b5cb97cf-469d-4db3-9ec0-484e54c82cb4
+
+	/// Reminder of when constructors' titles exist.
+	measure 'Constructor Title Note' =
+			VAR _hi = MAX('Season'[Season])
+			VAR _lo = MIN('Season'[Season])
+			RETURN IF(_hi < 1958, "The constructors' championship did not exist before 1958, so no team titles are shown.", IF(_lo < 1958, "The constructors' championship starts in 1958; earlier seasons are not awarded.", "Titles are counted from final standings of completed seasons only."))
+		formatString: @
+		displayFolder: Messages
+		lineageTag: 096b4273-3bec-449f-8560-6b63831b2ded
+
+	/// Laps run in first place, from the lap-by-lap record (available from 1982). Counts laps recorded, so an unrecorded lap is not a lap led.
+	measure 'Laps Led' = CALCULATE(COUNTROWS('Lap Times'), 'Lap Times'[Running Position] = 1)
+		formatString: #,##0
+		displayFolder: Race pace
+		lineageTag: ea21c142-13da-436e-a3ab-074ae96eec2c
+
+	/// Rank of each driver by laps led within the current selection.
+	measure 'Laps Led Rank' = IF([Laps Led] > 0, RANKX(ALLSELECTED('Driver'[Driver]), [Laps Led], , DESC, Skip))
+		formatString: 0
+		isHidden
+		displayFolder: Helpers
+		lineageTag: 1b434f08-d3c9-4164-93b8-d6aee354bd3f
+
+	/// Median lap time of all recorded laps in the selection. The circuits visited change from season to season, so compare it as a direction of travel, not exactly.
+	measure 'Median Lap (s)' = DIVIDE(MEDIAN('Lap Times'[Lap Time (ms)]), 1000)
+		formatString: 0.0
+		displayFolder: Race pace
+		lineageTag: 3197a6a0-177c-4fbf-a162-efe2fb9c5182
+
+	/// Share of Grands Prix in view that have lap-by-lap data.
+	measure 'Lap Data Coverage' = DIVIDE(CALCULATE(COUNTROWS(FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Lap Times')) > 0))), [# Races Held])
+		formatString: 0%
+		displayFolder: Race pace
+		lineageTag: a976d273-9a4f-42f5-94fa-e8638a89a8af
+
+	/// Coverage note for race-pace visuals.
+	measure 'Lap Coverage Message' =
+			VAR _c = [Lap Data Coverage]
+			VAR _first = MINX('Lap Times', RELATED('Race'[Season Year]))
+			RETURN IF(COALESCE(_c, 0) = 0, "No lap data in these seasons. Lap times are recorded from 1982.", FORMAT(_c, "0%") & " of Grands Prix in view have lap data (first season with laps: " & _first & ").")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: d48646a8-94e7-48f5-8e54-8c7bd1e4ce85
+
+	/// Different drivers who won a Grand Prix in the season (competitive balance).
+	measure 'Season Winners Distinct' = [# Race Winners]
+		formatString: #,##0
+		displayFolder: Competitive balance
+		lineageTag: 031f9a4f-3d0c-43d5-bad5-a2160d73a56d
+
+	/// Average number of cars that started each Grand Prix.
+	measure 'Cars per Race' = DIVIDE([Starts], [# Races Held])
+		formatString: 0.0
+		displayFolder: Counts
+		lineageTag: bc558eea-45d5-4fdc-9465-16d060a574b5
+
+	/// Best era-normalised points share among drivers with at least 30 starts in the selection: points as a share of the maximum available to a winner of every race.
+	measure 'Top Scorer Era-Normalised' = MAXX(FILTER(VALUES('Driver'[Driver]), [Starts] >= 30), [Era-Normalised Points])
+		formatString: 0%
+		displayFolder: Points
+		lineageTag: 51d84c85-d2ab-48ca-bc72-af1d7b1f54ea
+
+	/// Seasons in view whose win or runner-up points differ from the previous season.
+	measure 'Scoring Changes Detected' = CALCULATE(COUNTROWS('Season'), 'Season'[Scoring Changed] = TRUE())
+		formatString: 0
+		displayFolder: Messages
+		lineageTag: 065684d4-9185-491c-afcc-eac35f80b4b9
+
+	/// Share of scheduled races that have race results.
+	measure 'Coverage Results' = COALESCE(DIVIDE(COUNTROWS(FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Race Results')) > 0)), COUNTROWS('Race')), 0)
+		formatString: 0%
+		displayFolder: Coverage
+		lineageTag: f00549c7-c020-4bc5-b1fb-a8b90871b26f
+
+	/// Share of scheduled races that have sprint results. Sprints only exist at some weekends, so a low value is normal.
+	measure 'Coverage Sprint' = COALESCE(DIVIDE(COUNTROWS(FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Sprint Results')) > 0)), COUNTROWS('Race')), 0)
+		formatString: 0%
+		displayFolder: Coverage
+		lineageTag: e55c3df6-9920-4ae2-9e5b-2d7edbce6632
+
+	/// Share of scheduled races that have qualifying records.
+	measure 'Coverage Qualifying' = COALESCE(DIVIDE(COUNTROWS(FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Qualifying')) > 0)), COUNTROWS('Race')), 0)
+		formatString: 0%
+		displayFolder: Coverage
+		lineageTag: d930668d-17eb-496a-aa98-9695ad324a5b
+
+	/// Share of scheduled races that have lap-by-lap times.
+	measure 'Coverage Laps' = COALESCE(DIVIDE(COUNTROWS(FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Lap Times')) > 0)), COUNTROWS('Race')), 0)
+		formatString: 0%
+		displayFolder: Coverage
+		lineageTag: 6fa32e11-5a0f-44ba-999b-c7840a8a32bd
+
+	/// Share of scheduled races that have pit-stop records.
+	measure 'Coverage Pit Stops' = COALESCE(DIVIDE(COUNTROWS(FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Pit Stops')) > 0)), COUNTROWS('Race')), 0)
+		formatString: 0%
+		displayFolder: Coverage
+		lineageTag: d6812bfe-898a-4163-b51a-897b74ee3cd1
+
+	/// Share of scheduled races that have a drivers' standings snapshot.
+	measure 'Coverage Driver Standings' = COALESCE(DIVIDE(COUNTROWS(FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Driver Standings')) > 0)), COUNTROWS('Race')), 0)
+		formatString: 0%
+		displayFolder: Coverage
+		lineageTag: 51388531-7bcf-423c-a0d5-44400b9f1bbb
+
+	/// Share of scheduled races that have a constructors' standings snapshot (from 1958).
+	measure 'Coverage Constructor Standings' = COALESCE(DIVIDE(COUNTROWS(FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Constructor Standings')) > 0)), COUNTROWS('Race')), 0)
+		formatString: 0%
+		displayFolder: Coverage
+		lineageTag: c33e8c99-f84b-4f49-96ec-37ab5935f71d
+
+	/// Share of scheduled races that have constructor result rows.
+	measure 'Coverage Constructor Results' = COALESCE(DIVIDE(COUNTROWS(FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Constructor Results')) > 0)), COUNTROWS('Race')), 0)
+		formatString: 0%
+		displayFolder: Coverage
+		lineageTag: 43b51685-da30-4577-9558-bfd0fc36ae2d
+
+	/// Sum of every driver's final official championship points for the season in view.
+	measure 'Official Points Total' = SUMX(ALL('Driver'[Driver]), [Latest Driver Points])
+		formatString: #,##0.#
+		displayFolder: Data quality
+		lineageTag: 72f9fcc9-c5a0-4e3b-a475-0ba350ef8847
+
+	/// Sum of race and sprint points of all drivers for the season in view, ignoring any driver or constructor filter.
+	measure 'Recorded Points All Drivers' = CALCULATE([Recorded Points], REMOVEFILTERS('Driver'), REMOVEFILTERS('Constructor'))
+		formatString: #,##0.#
+		displayFolder: Data quality
+		lineageTag: 754d858b-a1cd-4894-81de-7c28395bc0bd
+
+	/// Recorded points minus official standings points. Non-zero values are expected where championships dropped worst results, and for seasons in progress.
+	measure 'Standings Gap' = [Recorded Points All Drivers] - [Official Points Total]
+		formatString: +#,##0.#;-#,##0.#;0
+		displayFolder: Data quality
+		lineageTag: 8b6834f4-2482-401d-948f-d06b18da7973
+
+	/// Pass when recorded points equal official points, Warn when they differ by less than 10%, Fail otherwise.
+	measure 'Standings Gap Status' =
+			VAR _g = ABS([Standings Gap])
+			VAR _o = [Official Points Total]
+			RETURN IF(ISBLANK(_o), BLANK(), IF(_g < 0.5, "Pass", IF(DIVIDE(_g, _o) < 0.1, "Warn", "Fail")))
+		formatString: @
+		displayFolder: Data quality
+		lineageTag: 0075c588-d93c-4a41-a42c-e15b135a5010
+
+	/// Short chart title: retirement rate of the first and last decade in view.
+	measure 'Short Title Retirement' =
+			VAR _dec = FILTER(VALUES('Season'[Decade]), [Starts] >= 100)
+			VAR _a = MINX(_dec, 'Season'[Decade])
+			VAR _b = MAXX(_dec, 'Season'[Decade])
+			VAR _ra = CALCULATE([Retirement Rate], KEEPFILTERS('Season'[Decade] = _a))
+			VAR _rb = CALCULATE([Retirement Rate], KEEPFILTERS('Season'[Decade] = _b))
+			RETURN IF(NOT ISBLANK(_a), "Starts ending in retirement: " & FORMAT(_ra, "0%") & IF(_a <> _b, " to " & FORMAT(_rb, "0%"), ""), "Starts ending in retirement")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: cb5f2715-7b1d-46c9-b68e-6e3d43ed2b4c
+
+	/// Short chart title: pole-to-win conversion of the first and last decade in view.
+	measure 'Short Title Pole Conversion' =
+			VAR _dec = FILTER(VALUES('Season'[Decade]), CALCULATE([Pole Positions]) >= 10)
+			VAR _a = MINX(_dec, 'Season'[Decade])
+			VAR _b = MAXX(_dec, 'Season'[Decade])
+			VAR _ra = CALCULATE([Pole to Win Conversion], KEEPFILTERS('Season'[Decade] = _a))
+			VAR _rb = CALCULATE([Pole to Win Conversion], KEEPFILTERS('Season'[Decade] = _b))
+			RETURN IF(NOT ISBLANK(_a), "Poles that became wins: " & FORMAT(_ra, "0%") & IF(_a <> _b, " to " & FORMAT(_rb, "0%"), ""), "Poles that became wins")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: e8f5819a-92f1-40a6-a0c3-b462d7bba492
+
+	/// Short chart title: top driver's share of wins in the first and last decade in view.
+	measure 'Short Title Concentration' =
+			VAR _dec = FILTER(VALUES('Season'[Decade]), [Wins] >= 10)
+			VAR _a = MINX(_dec, 'Season'[Decade])
+			VAR _b = MAXX(_dec, 'Season'[Decade])
+			VAR _ra = CALCULATE([Top Driver Share of Wins], KEEPFILTERS('Season'[Decade] = _a))
+			VAR _rb = CALCULATE([Top Driver Share of Wins], KEEPFILTERS('Season'[Decade] = _b))
+			RETURN IF(NOT ISBLANK(_a), "Top driver's share of wins: " & FORMAT(_ra, "0%") & IF(_a <> _b, " to " & FORMAT(_rb, "0%"), ""), "Top driver's share of wins")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: 226d77ef-81a4-4335-845a-747723292475
+
+	/// Title of the driver head-to-head table: names both drivers, or tells the viewer what to choose.
+	measure 'H2H Title' =
+			VAR _a = SELECTEDVALUE('Driver'[Driver])
+			VAR _b = SELECTEDVALUE('Compare Driver'[Compare Driver])
+			RETURN IF(ISBLANK(_a) || ISBLANK(_b), "Head to head: choose one driver in the Driver filter and a comparison driver above", IF(_a = _b, "Head to head: choose two different drivers", "Head to head by season: " & _a & " vs " & _b))
+		formatString: @
+		displayFolder: Messages
+		lineageTag: a3247042-b4ba-421d-97e8-f9cbb336b5cc
+
+	/// Title of the constructor head-to-head table: names both constructors, or tells the viewer what to choose.
+	measure 'Cmp Title' =
+			VAR _a = SELECTEDVALUE('Constructor'[Constructor])
+			VAR _b = SELECTEDVALUE('Compare Constructor'[Compare Constructor])
+			RETURN IF(ISBLANK(_a) || ISBLANK(_b), "Head to head: choose one constructor in the Constructor filter and a comparison above", IF(_a = _b, "Head to head: choose two different constructors", "Head to head by season: " & _a & " vs " & _b & " (ahead = higher era-normalised points)"))
+		formatString: @
+		displayFolder: Messages
+		lineageTag: 7751cd9a-d0e2-43d1-894c-5ceff721aaaa
+
+	/// Names the Grand Prix shown in the race view, or asks for a season and a Grand Prix.
+	measure 'Race View Title' = IF(HASONEVALUE('Race'[Race Id]), SELECTEDVALUE('Race'[Race]) & " " & SELECTEDVALUE('Race'[Season Year]), "Choose one season and one Grand Prix")
+		formatString: @
+		displayFolder: Messages
+		lineageTag: 7d497d26-9f55-424a-b3c1-2f3ac0fe96b9
+
+	/// 1 when exactly one Grand Prix is in view, otherwise blank. Keeps race-level tables empty until a single race is chosen.
+	measure 'Race Selected Flag' = IF(HASONEVALUE('Race'[Race Id]), 1)
+		formatString: 0
+		isHidden
+		displayFolder: Helpers
+		lineageTag: d96c3b2e-fae8-4f29-a54b-222d5c8e9eee
+
+	/// Overview headline: how retirements, pole conversion and the top driver share of wins moved between the first and last decade in view. Falls back to the general headline or the empty-state message.
+	measure 'Headline Overview' =
+			VAR _dec = FILTER(VALUES('Season'[Decade]), [Starts] >= 100)
+			VAR _a = MINX(_dec, 'Season'[Decade])
+			VAR _b = MAXX(_dec, 'Season'[Decade])
+			VAR _ra = CALCULATE([Retirement Rate], KEEPFILTERS('Season'[Decade] = _a))
+			VAR _rb = CALCULATE([Retirement Rate], KEEPFILTERS('Season'[Decade] = _b))
+			VAR _pa = CALCULATE([Pole to Win Conversion], KEEPFILTERS('Season'[Decade] = _a))
+			VAR _pb = CALCULATE([Pole to Win Conversion], KEEPFILTERS('Season'[Decade] = _b))
+			VAR _ca = CALCULATE([Top Driver Share of Wins], KEEPFILTERS('Season'[Decade] = _a))
+			VAR _cb = CALCULATE([Top Driver Share of Wins], KEEPFILTERS('Season'[Decade] = _b))
+			VAR _ok = NOT HASONEVALUE('Driver'[Driver]) && _a <> _b && NOT ISBLANK(_a) && NOT ISBLANK(_ra) && NOT ISBLANK(_rb) && NOT ISBLANK(_pa) && NOT ISBLANK(_pb) && NOT ISBLANK(_ca) && NOT ISBLANK(_cb)
+			RETURN IF(COALESCE([Starts], 0) = 0, [Empty State Message], IF(_ok, _a & "s to " & _b & "s: retirements " & IF(_rb < _ra, "fell", "rose") & " from " & FORMAT(_ra, "0%") & " to " & FORMAT(_rb, "0%") & ", poles converted to wins " & FORMAT(_pa, "0%") & " to " & FORMAT(_pb, "0%") & ", the top driver's win share " & FORMAT(_ca, "0%") & " to " & FORMAT(_cb, "0%") & ".", "In view: " & FORMAT([# Races Held], "#,##0") & IF([# Races Held] = 1, " Grand Prix, ", " Grands Prix, ") & FORMAT([# Drivers Started], "#,##0") & IF([# Drivers Started] = 1, " driver; ", " drivers; ") & "retirements ended " & FORMAT([Retirement Rate], "0%") & " of starts" & IF(ISBLANK([Pole to Win Conversion]), "", " and a pole won " & FORMAT([Pole to Win Conversion], "0%") & " of the time") & "."))
+		formatString: @
+		displayFolder: Headlines
+		lineageTag: 7c07bbf9-5eee-4743-b500-8a8db8d15167
+
+	/// Driver Intelligence headline: the selected driver's wins, starts, win rate and rank among all drivers, or the all-time leader when no single driver is selected.
+	measure 'Headline Driver' =
+			VAR _one = HASONEVALUE('Driver'[Driver])
+			VAR _name = SELECTEDVALUE('Driver'[Driver])
+			VAR _top = TOPN(1, FILTER(VALUES('Driver'[Driver]), [Wins] > 0), [Wins], DESC)
+			VAR _lead = MAXX(_top, 'Driver'[Driver])
+			VAR _leadWins = MAXX(_top, [Wins])
+			VAR _w = [Wins] + 0
+			VAR _rank = RANKX(ALL('Driver'[Driver]), [Wins], _w, DESC, Skip)
+			VAR _field = CALCULATE([# Drivers Started], REMOVEFILTERS('Driver'))
+			RETURN IF(COALESCE([Starts], 0) = 0, [Empty State Message], IF(_one, _name & " won " & FORMAT(_w, "#,##0") & " of " & FORMAT([Starts], "#,##0") & " starts (" & FORMAT(DIVIDE(_w, [Starts]), "0%") & ") and ranks " & _rank & " of " & FORMAT(_field, "#,##0") & " drivers by wins.", _lead & " leads with " & FORMAT(_leadWins, "#,##0") & " wins in the seasons in view. Choose a driver to see their story."))
+		formatString: @
+		displayFolder: Headlines
+		lineageTag: ce78cddb-bf6e-4707-a38a-a633207a7e72
+
+	/// Constructor Analysis headline: the selected constructor's wins, titles and retirement rate, or the leading constructor when none is selected.
+	measure 'Headline Constructor' =
+			VAR _one = HASONEVALUE('Constructor'[Constructor])
+			VAR _name = SELECTEDVALUE('Constructor'[Constructor])
+			VAR _top = TOPN(1, FILTER(VALUES('Constructor'[Constructor]), [Wins] > 0), [Wins], DESC)
+			VAR _lead = MAXX(_top, 'Constructor'[Constructor])
+			VAR _leadWins = MAXX(_top, [Wins])
+			VAR _t = [Constructor Titles] + 0
+			RETURN IF(COALESCE([Starts], 0) = 0, [Empty State Message], IF(_one, _name & " won " & FORMAT([Wins] + 0, "#,##0") & " races and " & FORMAT(_t, "#,##0") & IF(_t = 1, " constructors' title", " constructors' titles") & " from " & FORMAT([Starts], "#,##0") & " starts, ending " & FORMAT([Retirement Rate], "0%") & " of them in retirement.", _lead & " leads the constructors with " & FORMAT(_leadWins, "#,##0") & " wins in the seasons in view. Choose a constructor to see their story."))
+		formatString: @
+		displayFolder: Headlines
+		lineageTag: be0262e0-6354-4d38-bee4-179bbaa8b4bd
+
+	/// Race & Circuit Explorer headline: for one chosen Grand Prix, who won and from which grid slot; otherwise how to use the page.
+	measure 'Headline Explorer' =
+			VAR _winner = MAXX(FILTER('Race Results', 'Race Results'[Finish Position] = 1), RELATED('Driver'[Driver]))
+			VAR _team = MAXX(FILTER('Race Results', 'Race Results'[Finish Position] = 1), RELATED('Constructor'[Constructor]))
+			VAR _grid = MAXX(FILTER('Race Results', 'Race Results'[Finish Position] = 1), 'Race Results'[Grid Position])
+			RETURN IF(HASONEVALUE('Race'[Race Id]) && NOT ISBLANK(_winner), [Race View Title] & ": " & _winner & " (" & _team & ") won from " & IF(ISBLANK(_grid), "an unrecorded grid slot", IF(_grid = 0, "the pit lane", "grid slot " & _grid)) & ".", "Choose a season and a Grand Prix to see how one race unfolded. The circuit section below follows the Circuit filter.")
+		formatString: @
+		displayFolder: Headlines
+		lineageTag: dd11677c-0d72-4387-9542-9ec6f8bd91c8
+
+	/// Qualifying & Race Performance headline: how often a pole start became a win and how far the average qualifying lap was from the fastest.
+	measure 'Headline Qualifying' =
+			VAR _c = [Pole to Win Conversion]
+			VAR _g = [Avg Gap to Fastest (%)]
+			RETURN IF(COALESCE([Starts], 0) = 0, [Empty State Message], IF(ISBLANK(_c), "Too few poles in these seasons to say how often a pole start wins.", "From pole, " & FORMAT(_c, "0%") & " of starts ended in a win" & IF(ISBLANK(_g), ".", ", and the average qualifying lap was " & FORMAT(_g, "0.0%") & " slower than the fastest of its session.")))
+		formatString: @
+		displayFolder: Headlines
+		lineageTag: 5dd76e25-34f5-4d00-9a6d-88dabbbe17e5
+
+	/// Pit Stop Analysis headline: typical pit-lane time in the first and last season in view that has pit-stop records, or a note that there are none.
+	measure 'Headline Pit Stops' =
+			VAR _all = FILTER(VALUES('Season'[Season]), CALCULATE(COUNTROWS('Pit Stops')) > 0)
+			VAR _cmpN = COUNTROWS(FILTER(_all, CALCULATE(MIN('Season'[Complete Flag])) = 1))
+			VAR _ps = FILTER(_all, _cmpN = 0 || CALCULATE(MIN('Season'[Complete Flag])) = 1)
+			VAR _a = MINX(_ps, 'Season'[Season])
+			VAR _b = MAXX(_ps, 'Season'[Season])
+			VAR _ta = CALCULATE([Typical Pit Time (s)], KEEPFILTERS('Season'[Season] = _a))
+			VAR _tb = CALCULATE([Typical Pit Time (s)], KEEPFILTERS('Season'[Season] = _b))
+			RETURN IF(ISBLANK(_a), "No pit-stop records in these seasons (they begin in 1994). The chart below shows how starts ended instead.", IF(_a = _b, "Typical pit-lane time in " & _a & ": " & FORMAT(_ta, "0.0") & " seconds, entry to exit.", "Typical pit-lane time " & IF(_tb < _ta, "fell", "rose") & " from " & FORMAT(_ta, "0.0") & " s in " & _a & " to " & FORMAT(_tb, "0.0") & " s in " & _b & ", entry to exit."))
+		formatString: @
+		displayFolder: Headlines
+		lineageTag: 64e7c167-44bb-40ab-aa38-f8a0fc824cef
+
+	/// F1 Through the Eras headline (the recap): calendar length, retirement rate and scoring changes between the first and last season in view.
+	measure 'Headline Eras' =
+			VAR _all = FILTER(VALUES('Season'[Season]), [Starts] > 0)
+			VAR _cmpN = COUNTROWS(FILTER(_all, CALCULATE(MIN('Season'[Complete Flag])) = 1))
+			VAR _s = FILTER(_all, _cmpN = 0 || CALCULATE(MIN('Season'[Complete Flag])) = 1)
+			VAR _a = MINX(_s, 'Season'[Season])
+			VAR _b = MAXX(_s, 'Season'[Season])
+			VAR _ga = CALCULATE([# Races Held], KEEPFILTERS('Season'[Season] = _a))
+			VAR _gb = CALCULATE([# Races Held], KEEPFILTERS('Season'[Season] = _b))
+			VAR _ra = CALCULATE([Retirement Rate], KEEPFILTERS('Season'[Season] = _a))
+			VAR _rb = CALCULATE([Retirement Rate], KEEPFILTERS('Season'[Season] = _b))
+			VAR _sc = [Scoring Changes Detected]
+			RETURN IF(COALESCE([Starts], 0) = 0, [Empty State Message], IF(_a = _b, "Choose a wider range of seasons to compare eras.", "From " & _a & " to " & _b & " the calendar went from " & _ga & " to " & _gb & " races, retirements " & IF(_rb < _ra, "fell", "rose") & " from " & FORMAT(_ra, "0%") & " to " & FORMAT(_rb, "0%") & " of starts, and the scoring system changed " & COALESCE(_sc, 0) & IF(COALESCE(_sc, 0) = 1, " time.", " times.")))
+		formatString: @
+		displayFolder: Headlines
+		lineageTag: 75fb2a2f-dd05-40c5-9005-5a7e7348a52a
+
+	/// Leaderboard title that names the leading driver for the chosen metric and its value.
+	measure 'Action Leaderboard Drivers' =
+			VAR _top = TOPN(1, FILTER(VALUES('Driver'[Driver]), [Leaderboard Value] > 0), [Leaderboard Value], DESC)
+			VAR _v = MAXX(_top, [Leaderboard Value])
+			VAR _m = SWITCH(SELECTEDVALUE('Leaderboard Metric'[Leaderboard Metric Order], 0), 0, "wins", 1, "podiums", 2, "poles", 3, "titles", 4, "points", 5, "starts")
+			RETURN IF(ISBLANK(_v), "Top drivers by " & _m, MAXX(_top, 'Driver'[Driver]) & " leads in " & _m & ": " & FORMAT(_v, "#,##0"))
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: a9d3ac1e-a2a4-44e8-9c7d-baef3d7335b2
+
+	/// Leaderboard title that names the leading constructor for the chosen metric and its value.
+	measure 'Action Leaderboard Constructors' =
+			VAR _top = TOPN(1, FILTER(VALUES('Constructor'[Constructor]), [Constructor Leaderboard Value] > 0), [Constructor Leaderboard Value], DESC)
+			VAR _v = MAXX(_top, [Constructor Leaderboard Value])
+			VAR _m = SWITCH(SELECTEDVALUE('Constructor Metric'[Constructor Metric Order], 0), 0, "wins", 1, "podiums", 2, "poles", 3, "titles", 4, "points", 5, "starts")
+			RETURN IF(ISBLANK(_v), "Top constructors by " & _m, MAXX(_top, 'Constructor'[Constructor]) & " leads in " & _m & ": " & FORMAT(_v, "#,##0"))
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: 58176199-38dd-4bb7-b789-85644709855f
+
+	/// Title for wins per season: the season with the most wins in view.
+	measure 'Action Wins Trend' =
+			VAR _top = TOPN(1, FILTER(VALUES('Season'[Season]), [Wins] > 0), [Wins], DESC, 'Season'[Season], DESC)
+			RETURN IF(ISBLANK(MAXX(_top, [Wins])), "Wins per season", "Wins per season: the peak was " & MAXX(_top, [Wins]) & " in " & MAXX(_top, 'Season'[Season]))
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: 0240cb80-32fc-494e-8eef-49aacceb6962
+
+	/// Title for reliability: mechanical-failure rate in the first and last season in view.
+	measure 'Action Reliability' =
+			VAR _all = FILTER(VALUES('Season'[Season]), [Starts] > 0)
+			VAR _cmpN = COUNTROWS(FILTER(_all, CALCULATE(MIN('Season'[Complete Flag])) = 1))
+			VAR _s = FILTER(_all, _cmpN = 0 || CALCULATE(MIN('Season'[Complete Flag])) = 1)
+			VAR _a = MINX(_s, 'Season'[Season])
+			VAR _b = MAXX(_s, 'Season'[Season])
+			VAR _ra = CALCULATE([Mechanical Retirement Rate], KEEPFILTERS('Season'[Season] = _a))
+			VAR _rb = CALCULATE([Mechanical Retirement Rate], KEEPFILTERS('Season'[Season] = _b))
+			RETURN IF(ISBLANK(_a) || _a = _b || ISBLANK(_ra) || ISBLANK(_rb), "Share of starts lost to mechanical failure, accidents and other retirements", "Mechanical failures ended " & FORMAT(_ra, "0%") & " of starts in " & _a & " and " & FORMAT(_rb, "0%") & " in " & _b)
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: bf6bcbbc-132f-403c-bfac-4f0b482f069a
+
+	/// Title for win rate by starting slot: pole against fifth on the grid.
+	measure 'Action Slot Win Rate' =
+			VAR _p = CALCULATE([Win Rate (%)], 'Race Results'[Grid Slot] = 1)
+			VAR _f = CALCULATE([Win Rate (%)], 'Race Results'[Grid Slot] = 5)
+			RETURN IF(ISBLANK(_p), "Win rate by starting slot", "A start from pole wins " & FORMAT(_p, "0%") & " of the time" & IF(ISBLANK(_f), "", "; from fifth, " & FORMAT(_f, "0%")))
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: d6c97e80-960d-4abf-9682-db1d86d78697
+
+	/// Title for laps led: the driver who led the most laps and how many.
+	measure 'Action Laps Led' =
+			VAR _top = TOPN(1, FILTER(VALUES('Driver'[Driver]), [Laps Led] > 0), [Laps Led], DESC)
+			RETURN IF(ISBLANK(MAXX(_top, [Laps Led])), "Laps led (lap data from 1982)", MAXX(_top, 'Driver'[Driver]) & " led the most laps: " & FORMAT(MAXX(_top, [Laps Led]), "#,##0"))
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: d8bc44a6-b4a9-4169-95d5-979c23462e11
+
+	/// Title for the qualifying gap: average gap to the fastest lap in the first and last season with qualifying data in view.
+	measure 'Action Qualifying Gap' =
+			VAR _all = FILTER(VALUES('Season'[Season]), CALCULATE(COUNTROWS('Qualifying')) > 0)
+			VAR _cmpN = COUNTROWS(FILTER(_all, CALCULATE(MIN('Season'[Complete Flag])) = 1))
+			VAR _s = FILTER(_all, _cmpN = 0 || CALCULATE(MIN('Season'[Complete Flag])) = 1)
+			VAR _a = MINX(_s, 'Season'[Season])
+			VAR _b = MAXX(_s, 'Season'[Season])
+			VAR _ga = CALCULATE([Avg Gap to Fastest (%)], KEEPFILTERS('Season'[Season] = _a))
+			VAR _gb = CALCULATE([Avg Gap to Fastest (%)], KEEPFILTERS('Season'[Season] = _b))
+			RETURN IF(ISBLANK(_a) || _a = _b || ISBLANK(_ga) || ISBLANK(_gb), "Average qualifying gap to the fastest lap, by season", "The average qualifying lap was " & FORMAT(_ga, "0.0%") & " off the fastest in " & _a & " and " & FORMAT(_gb, "0.0%") & " in " & _b)
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: 2e0a5dcc-235c-4661-a007-cb1f36b8265e
+
+	/// Title for stops per car: the season with the most stops per car in view.
+	measure 'Action Stops per Car' =
+			VAR _top = TOPN(1, FILTER(VALUES('Season'[Season]), [Stops per Car] > 0), [Stops per Car], DESC, 'Season'[Season], DESC)
+			RETURN IF(ISBLANK(MAXX(_top, [Stops per Car])), "Pit stops per car by season", "Stops per car peaked at " & FORMAT(MAXX(_top, [Stops per Car]), "0.0") & " in " & MAXX(_top, 'Season'[Season]))
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: e5f7636b-a887-4aa0-af43-cc829c7219a9
+
+	/// Title for calendar growth: races in the first and last season in view.
+	measure 'Action Calendar' =
+			VAR _all = FILTER(VALUES('Season'[Season]), [Starts] > 0)
+			VAR _cmpN = COUNTROWS(FILTER(_all, CALCULATE(MIN('Season'[Complete Flag])) = 1))
+			VAR _s = FILTER(_all, _cmpN = 0 || CALCULATE(MIN('Season'[Complete Flag])) = 1)
+			VAR _a = MINX(_s, 'Season'[Season])
+			VAR _b = MAXX(_s, 'Season'[Season])
+			VAR _ga = CALCULATE([# Races Held], KEEPFILTERS('Season'[Season] = _a))
+			VAR _gb = CALCULATE([# Races Held], KEEPFILTERS('Season'[Season] = _b))
+			RETURN IF(ISBLANK(_a) || _a = _b, "Grands Prix per season", "The calendar went from " & _ga & " races in " & _a & " to " & _gb & " in " & _b)
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: 4d2da1d5-a207-4fa1-bd61-3d8815ef5225
+
+	/// Title for participation: drivers who started in the first and last season in view.
+	measure 'Action Participation' =
+			VAR _all = FILTER(VALUES('Season'[Season]), [Starts] > 0)
+			VAR _cmpN = COUNTROWS(FILTER(_all, CALCULATE(MIN('Season'[Complete Flag])) = 1))
+			VAR _s = FILTER(_all, _cmpN = 0 || CALCULATE(MIN('Season'[Complete Flag])) = 1)
+			VAR _a = MINX(_s, 'Season'[Season])
+			VAR _b = MAXX(_s, 'Season'[Season])
+			VAR _da = CALCULATE([# Drivers Started], KEEPFILTERS('Season'[Season] = _a))
+			VAR _db = CALCULATE([# Drivers Started], KEEPFILTERS('Season'[Season] = _b))
+			RETURN IF(ISBLANK(_a) || _a = _b, "Drivers, teams and cars per race", "Drivers per season went from " & _da & " in " & _a & " to " & _db & " in " & _b)
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: cae70aaa-feea-4cb5-b832-ee1be56157e6
+
+	/// Title for competitive balance: the season with the most different winners.
+	measure 'Action Balance' =
+			VAR _top = TOPN(1, FILTER(VALUES('Season'[Season]), [# Race Winners] > 0), [# Race Winners], DESC, 'Season'[Season], DESC)
+			RETURN IF(ISBLANK(MAXX(_top, [# Race Winners])), "Different winners per season", "Most open season: " & MAXX(_top, 'Season'[Season]) & ", with " & MAXX(_top, [# Race Winners]) & " different winners")
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: b491f5e7-a57b-40fe-9f01-09148ff7b694
+
+	/// Title for the winner's grid slot: average slot and share of wins from pole.
+	measure 'Action Winner Grid' =
+			VAR _g = [Winner Grid Slot]
+			RETURN IF(ISBLANK(_g), "Winner's average grid slot by year", "Winners started from slot " & FORMAT(_g, "0.0") & " on average, " & FORMAT([Winners from Pole Share], "0%") & " of them from pole")
+		formatString: @
+		displayFolder: Action titles
+		lineageTag: 801706cc-f3dc-427f-94ce-a510f847d8e6
+
+	/// Amber for the first and last decade in view, grey for the others, so the before and after stand out.
+	measure 'Color Decade Ends' =
+			VAR _cur = MAX('Season'[Decade])
+			VAR _dec = FILTER(ALLSELECTED('Season'[Decade], 'Season'[Era]), CALCULATE([Starts]) >= 100)
+			VAR _a = MINX(_dec, 'Season'[Decade])
+			VAR _b = MAXX(_dec, 'Season'[Decade])
+			RETURN IF(_cur = _a || _cur = _b, "#F5B301", "#5B6470")
+		formatString: @
+		displayFolder: Highlight colours
+		lineageTag: 5c36ffb7-19d2-4fa3-b249-c03a222f72ae
+
+	/// Amber for the top-ranked driver bar, grey for the rest.
+	measure 'Color Top Driver' = IF([Driver Leaderboard Rank] = 1, "#F5B301", "#5B6470")
+		formatString: @
+		displayFolder: Highlight colours
+		lineageTag: 77211e1a-c8b5-4b06-adc6-06eebc9b1970
+
+	/// Amber for the top-ranked constructor bar, grey for the rest.
+	measure 'Color Top Constructor' = IF([Constructor Leaderboard Rank] = 1, "#F5B301", "#5B6470")
+		formatString: @
+		displayFolder: Highlight colours
+		lineageTag: 92ad53b0-656f-4fff-9cb1-e8ce17eacb90
+
+	/// Amber for the season with the most wins in view, grey for the other seasons.
+	measure 'Color Peak Wins Season' =
+			VAR _cur = MAX('Season'[Season])
+			VAR _peak = MAXX(TOPN(1, FILTER(ALLSELECTED('Season'[Season]), [Wins] > 0), [Wins], DESC, 'Season'[Season], DESC), 'Season'[Season])
+			RETURN IF(_cur = _peak, "#F5B301", "#5B6470")
+		formatString: @
+		displayFolder: Highlight colours
+		lineageTag: 87b05674-6584-48a0-b01f-5ad1ee9a4eeb
+
+	/// Amber for starting slot 1 (pole), grey for the other slots.
+	measure 'Color Pole Slot' = IF(MAX('Race Results'[Grid Slot]) = 1, "#F5B301", "#5B6470")
+		formatString: @
+		displayFolder: Highlight colours
+		lineageTag: 6fd5caa2-8abb-4e82-aa9f-fdc43ca6b340
+
+	/// Amber for drivers who gained places, grey for those who lost or held position.
+	measure 'Color Gained Places' = IF([Positions Gained] > 0, "#F5B301", "#5B6470")
+		formatString: @
+		displayFolder: Highlight colours
+		lineageTag: 062aba0e-f9ea-4083-9d4c-cef006f71fff
+
+	/// Amber for the driver with the most wins in view, grey for the rest.
+	measure 'Color Top Wins Driver' = IF([Driver Wins Rank] = 1, "#F5B301", "#5B6470")
+		formatString: @
+		displayFolder: Highlight colours
+		lineageTag: 7b8252b1-2e64-46e4-9c02-ea2523dd2bd7
+
+	/// Amber for the constructor with the most wins in view, grey for the rest.
+	measure 'Color Top Wins Constructor' = IF([Constructor Wins Rank] = 1, "#F5B301", "#5B6470")
+		formatString: @
+		displayFolder: Highlight colours
+		lineageTag: 412f2d25-3c2b-442b-856f-e2d25f28fc15
+
+	/// Amber for the driver who led the most laps, grey for the rest.
+	measure 'Color Top Laps Led' = IF([Laps Led Rank] = 1, "#F5B301", "#5B6470")
+		formatString: @
+		displayFolder: Highlight colours
+		lineageTag: aefaceec-c7c8-4dde-a9af-c38e209449d8
+
+	/// Amber for the constructor with the fastest typical pit-lane time, grey for the rest.
+	measure 'Color Fastest Pit Team' = IF([Constructor Pit Time Rank] = 1, "#F5B301", "#5B6470")
+		formatString: @
+		displayFolder: Highlight colours
+		lineageTag: be0d8afa-5f74-4ae8-88c8-2da4cb5e067f
+
+	/// Text colour for the status: grey for Pass, amber for Warn, white for Fail. The word Pass, Warn or Fail is always shown, so colour is never the only cue.
+	measure 'Standings Gap Status Ink' = SWITCH([Standings Gap Status], "Pass", "#7B8494", "Warn", "#F5B301", "Fail", "#FFFFFF", "#F2F2F2")
+		formatString: @
+		displayFolder: Data quality
+		lineageTag: 61ae734c-5300-4cc8-8de3-925a0fedacb1
+
+	column 'Race Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c31fc3c2-704d-4f96-af66-942aedeffa48
+		summarizeBy: none
+		sourceColumn: Race Id
+
+	column 'Driver Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f4ce3d84-e5f0-4c89-ad67-d68d5fa7c106
+		summarizeBy: none
+		sourceColumn: Driver Id
+
+	column 'Constructor Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8b7b9173-c536-4eb3-8374-7b729f2050a4
+		summarizeBy: none
+		sourceColumn: Constructor Id
+
+	column 'Status Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a4ee7116-2189-4cc8-9fa6-262fbe0a3e2b
+		summarizeBy: none
+		sourceColumn: Status Id
+
+	/// Starting grid slot as recorded. 0 means pit lane or unrecorded start; blank means missing. Neither is a pole position.
+	column 'Grid Position'
+		dataType: int64
+		formatString: 0
+		lineageTag: d9808cd8-5844-4867-aa5c-1b4d28a96a70
+		summarizeBy: none
+		sourceColumn: Grid Position
+
+	/// Official classified finishing position. Taken only where the source position code is numeric, so retired, disqualified, excluded, withdrawn and did-not-start entries are blank (the raw position is wrongly filled for 126 such rows in 2025 and 2026).
+	column 'Finish Position'
+		dataType: int64
+		formatString: 0
+		lineageTag: d5d230f5-99c7-4841-9415-6ccf39848280
+		summarizeBy: none
+		sourceColumn: Finish Position
+
+	/// Order in which results are listed, including unclassified drivers. Use Finish Position for the official place.
+	column 'Classification Order'
+		dataType: int64
+		formatString: 0
+		lineageTag: ce2e51c2-a988-4d5f-9a6f-470541168ee9
+		summarizeBy: none
+		sourceColumn: Classification Order
+
+	/// Championship points scored in this race.
+	column Points
+		dataType: decimal
+		isHidden
+		formatString: #,##0.##
+		lineageTag: fb9382bc-7168-4eac-a04d-8e6946e6bceb
+		summarizeBy: sum
+		sourceColumn: Points
+
+	column 'Laps Completed'
+		dataType: int64
+		formatString: 0
+		lineageTag: 867934ae-e788-4963-8298-ab4de41814ca
+		summarizeBy: none
+		sourceColumn: Laps Completed
+
+	/// Total race time in milliseconds. Only present for drivers who finished on the lead lap or the winner's gap was recorded.
+	column 'Race Duration (ms)'
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 6176dd5d-bc14-46f0-9546-b48fe71c0a76
+		summarizeBy: none
+		sourceColumn: Race Duration (ms)
+
+	/// Lap on which the driver set their fastest lap. Recorded from 2004.
+	column 'Fastest Lap Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: edfc17e2-c4bb-4e5a-a1ed-d866368c3631
+		summarizeBy: none
+		sourceColumn: Fastest Lap Number
+
+	/// Rank of this driver's fastest lap within the race (1 = fastest lap of the race).
+	column 'Fastest Lap Rank'
+		dataType: int64
+		formatString: 0
+		lineageTag: 2251855d-769e-4e64-86dd-fc369f0ea59c
+		summarizeBy: none
+		sourceColumn: Fastest Lap Rank
+
+	/// Fastest lap as text in m:ss.000 format.
+	column 'Fastest Lap Time'
+		dataType: string
+		lineageTag: 27e28d79-ea84-406f-9d9b-16787548c96e
+		summarizeBy: none
+		sourceColumn: Fastest Lap Time
+
+	/// Average speed over the driver's fastest lap in km/h.
+	column 'Fastest Lap Speed (km/h)'
+		dataType: decimal
+		formatString: 0.0
+		lineageTag: ef8541e9-6e9c-4bc8-8452-ef37f036f5cb
+		summarizeBy: none
+		sourceColumn: Fastest Lap Speed (km/h)
+
+	/// Raw position code from the source: a number for classified finishers, R retired, D disqualified, E excluded, W withdrawn, F failed to qualify, N not classified. Drives the Did not start and classified-finish rules.
+	column 'Position Text'
+		dataType: string
+		isHidden
+		lineageTag: 7f15ce81-dcac-40c2-99fb-83c213fbb202
+		summarizeBy: none
+		sourceColumn: Position Text
+
+	/// How the entry ended. Did not start: position code F or W (did not qualify, did not prequalify, 107% rule, withdrawn). Disqualified: D or E, or a disqualification status. Otherwise grouped from the status text: Finished, Lapped, Mechanical DNF, Accident DNF, Other DNF.
+	column 'Status Group' = SWITCH(TRUE(), 'Race Results'[Position Text] IN {"F", "W"}, "Did not start", 'Race Results'[Position Text] IN {"D", "E"}, "Disqualified", RELATED('Finishing Status'[Default Status Group]))
+		dataType: string
+		lineageTag: 59e88651-3fb6-4b0f-95a1-1e77e75cc83d
+		summarizeBy: none
+
+	/// True when the entry started the race (status group is not Did not start). Starts, wins rates and distinct driver counts use only these rows.
+	column Started = 'Race Results'[Status Group] <> "Did not start"
+		dataType: boolean
+		lineageTag: ede3e2d9-8478-433f-8360-47c086e30019
+		summarizeBy: none
+
+	/// How a start ended, from the position code and status group: Win, Podium, 4th to 10th, 11th or lower, Retired, Disqualified or Did not start. Position bands are positions, not points, so they are comparable across scoring systems.
+	column Outcome = SWITCH(TRUE(), NOT 'Race Results'[Started], "Did not start", 'Race Results'[Finish Position] = 1, "Win", 'Race Results'[Finish Position] <= 3, "Podium", 'Race Results'[Finish Position] <= 10, "4th to 10th", NOT ISBLANK('Race Results'[Finish Position]), "11th or lower", 'Race Results'[Status Group] = "Disqualified", "Disqualified", "Retired")
+		dataType: string
+		lineageTag: 3b1d40e9-4616-47b3-ba47-6af94b8ceb3a
+		summarizeBy: none
+		sortByColumn: 'Outcome Order'
+
+	/// Display order of Outcome.
+	column 'Outcome Order' = SWITCH(TRUE(), NOT 'Race Results'[Started], 7, 'Race Results'[Finish Position] = 1, 1, 'Race Results'[Finish Position] <= 3, 2, 'Race Results'[Finish Position] <= 10, 3, NOT ISBLANK('Race Results'[Finish Position]), 4, 'Race Results'[Status Group] = "Disqualified", 6, 5)
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ad3da9fb-3695-4e86-93db-c74a3dfa3ce4
+		summarizeBy: none
+
+	/// Grid slot minus classified finishing position for classified starts with a recorded grid of 1 or more. Positive means places gained. Blank when unclassified, pit lane or missing.
+	column 'Position Change' = IF('Race Results'[Started] && 'Race Results'[Grid Position] >= 1 && NOT ISBLANK('Race Results'[Finish Position]), 'Race Results'[Grid Position] - 'Race Results'[Finish Position])
+		dataType: int64
+		formatString: +0;-0;0
+		lineageTag: 93e847e8-b11f-40e1-8787-87b269685285
+		summarizeBy: none
+
+	/// Position Change limited to -10 and +10 so the distribution chart stays readable; the ends mean 10 or more.
+	column 'Position Change (capped)' = IF(ISBLANK('Race Results'[Position Change]), BLANK(), MAX(-10, MIN(10, 'Race Results'[Position Change])))
+		dataType: int64
+		formatString: +0;-0;0
+		lineageTag: ccbe668c-acdd-4c9b-b695-537ae89d3656
+		summarizeBy: none
+
+	/// Starting slot 1 to 24 for starts with a recorded grid. Pit lane or unrecorded (0), missing and slots beyond 24 are blank.
+	column 'Grid Slot' = IF('Race Results'[Started] && 'Race Results'[Grid Position] >= 1 && 'Race Results'[Grid Position] <= 24, 'Race Results'[Grid Position])
+		dataType: int64
+		formatString: 0
+		lineageTag: ffed163a-82b4-415f-a512-0c5271c7581d
+		summarizeBy: none
+
+	partition 'Race Results' = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\results.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  Cleaned = Table.ReplaceValue(Promoted, "\N", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				  Selected = Table.SelectColumns(Cleaned, {"raceId", "driverId", "constructorId", "statusId", "grid", "position", "positionText", "positionOrder", "points", "laps", "milliseconds", "fastestLap", "rank", "fastestLapTime", "fastestLapSpeed"}),
+				  Classified = Table.AddColumn(Selected, "classifiedPosition", each if [positionText] <> null and (try Number.FromText([positionText]))[HasError] = false then [position] else null, type text),
+				  Dropped = Table.RemoveColumns(Classified, {"position"}),
+				  Renamed = Table.RenameColumns(Dropped, {{"raceId", "Race Id"}, {"driverId", "Driver Id"}, {"constructorId", "Constructor Id"}, {"statusId", "Status Id"}, {"grid", "Grid Position"}, {"classifiedPosition", "Finish Position"}, {"positionText", "Position Text"}, {"positionOrder", "Classification Order"}, {"points", "Points"}, {"laps", "Laps Completed"}, {"milliseconds", "Race Duration (ms)"}, {"fastestLap", "Fastest Lap Number"}, {"rank", "Fastest Lap Rank"}, {"fastestLapTime", "Fastest Lap Time"}, {"fastestLapSpeed", "Fastest Lap Speed (km/h)"}}),
+				  Typed = Table.TransformColumnTypes(Renamed, {{"Race Id", Int64.Type}, {"Driver Id", Int64.Type}, {"Constructor Id", Int64.Type}, {"Status Id", Int64.Type}, {"Grid Position", Int64.Type}, {"Finish Position", Int64.Type}, {"Position Text", type text}, {"Classification Order", Int64.Type}, {"Points", Currency.Type}, {"Laps Completed", Int64.Type}, {"Race Duration (ms)", Int64.Type}, {"Fastest Lap Number", Int64.Type}, {"Fastest Lap Rank", Int64.Type}, {"Fastest Lap Time", type text}, {"Fastest Lap Speed (km/h)", Currency.Type}}, "en-US")
+				in
+				  Typed
+
+	annotation PBI_ResultType = Table
+

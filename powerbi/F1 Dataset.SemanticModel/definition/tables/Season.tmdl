@@ -1,0 +1,110 @@
+/// One row per Formula 1 championship season (calendar year). Grain: one row per season.
+table Season
+	lineageTag: 86603a4a-2891-42cf-a1c2-1ace64e916c5
+
+	/// Number of championship seasons in the current selection.
+	measure '# Seasons' = COUNTROWS('Season')
+		formatString: #,##0
+		displayFolder: Counts
+		lineageTag: 7d381df4-4358-4ab2-85a7-480f5ecfe7bb
+
+	/// Championship year, e.g. 2021.
+	column Season
+		dataType: int64
+		isKey
+		formatString: 0
+		lineageTag: ea235f18-5d2c-4560-ace7-5544e46ffe15
+		summarizeBy: none
+		sourceColumn: Season
+
+	/// Number of Grands Prix on the season calendar, run or not.
+	column 'Races Scheduled' = COUNTROWS(RELATEDTABLE('Race'))
+		dataType: int64
+		formatString: 0
+		lineageTag: 43c4d404-445c-434b-9310-6d6f9580aac2
+		summarizeBy: none
+
+	/// Number of Grands Prix in the season that have race results.
+	column 'Races With Results' = COUNTROWS(FILTER(RELATEDTABLE('Race'), 'Race'[Has Results]))
+		dataType: int64
+		formatString: 0
+		lineageTag: 75e217a7-143b-43a4-994d-944de1f0eff5
+		summarizeBy: none
+
+	/// True when every Grand Prix on the season calendar has results. A season with races still to run is in progress and awards no title yet.
+	column 'Is Complete' = 'Season'[Races With Results] > 0 && 'Season'[Races With Results] = 'Season'[Races Scheduled]
+		dataType: boolean
+		lineageTag: 822ae7b6-7109-453a-9c39-0d7fdec0db82
+		summarizeBy: none
+
+	/// Complete, or how many races of the calendar have results so far.
+	column 'Season Status' = IF('Season'[Is Complete], "Complete", "In progress: " & 'Season'[Races With Results] & " of " & 'Season'[Races Scheduled] & " races")
+		dataType: string
+		lineageTag: 0271109e-9eee-4c28-bc40-1bb279ccd721
+		summarizeBy: none
+
+	/// First year of the decade, e.g. 1980.
+	column Decade = INT('Season'[Season] / 10) * 10
+		dataType: int64
+		formatString: 0
+		lineageTag: 06827d3f-478c-42a6-b990-b4d14748f5d7
+		summarizeBy: none
+
+	/// Decade label such as 1980s. Eras are plain calendar decades; no regulation periods from outside the dataset are assumed.
+	column Era = 'Season'[Decade] & "s"
+		dataType: string
+		lineageTag: 886dc957-4dfc-4ebd-9ec6-93ec4c1003b7
+		summarizeBy: none
+		sortByColumn: Decade
+
+	/// Points for a Grand Prix win in this season: the typical (median) winner score across its races, so occasional fastest-lap bonus points do not distort it.
+	column 'Winner Points' = MEDIANX(RELATEDTABLE('Race'), 'Race'[Winner Points])
+		dataType: double
+		formatString: 0.##
+		lineageTag: 8a53fa84-8ca4-4b16-8ad7-7e8d3fbe38f6
+		summarizeBy: none
+
+	/// Points for second place in this season: the typical (median) score of the runner-up across its races.
+	column 'Runner-up Points' = MEDIANX(RELATEDTABLE('Race'), 'Race'[Runner-up Points])
+		dataType: double
+		formatString: 0.##
+		lineageTag: 381bd17b-1476-48c6-9e51-2f0e6105befb
+		summarizeBy: none
+
+	/// Points for a win and for second place in this season, read from the results. A change from the previous season marks a new scoring system.
+	column 'Scoring System' = IF(ISBLANK('Season'[Winner Points]), BLANK(), "Win " & FORMAT('Season'[Winner Points], "General Number") & " / 2nd " & FORMAT('Season'[Runner-up Points], "General Number"))
+		dataType: string
+		lineageTag: 61db320d-45c1-42fb-9103-bdbf0af59f0e
+		summarizeBy: none
+
+	/// 1 for a season whose calendar is fully run, 0 for a season in progress. Lets measures test completeness inside a season context.
+	column 'Complete Flag' = IF('Season'[Is Complete], 1, 0)
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: df277e2f-4ab5-4df6-b767-e06c787b8a2e
+		summarizeBy: none
+
+	/// True when the points for a win or for second place differ from the previous season, which marks a detected change of scoring system. Only these two values are compared, so changes lower down the points table are not detected.
+	column 'Scoring Changed' =
+			VAR _prev = LOOKUPVALUE('Season'[Scoring System], 'Season'[Season], 'Season'[Season] - 1)
+			RETURN NOT ISBLANK('Season'[Scoring System]) && NOT ISBLANK(_prev) && _prev <> 'Season'[Scoring System]
+		dataType: boolean
+		lineageTag: 92e5a830-8c34-48bf-a267-e11a35ea8306
+		summarizeBy: none
+
+	partition Season = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\seasons.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  Cleaned = Table.ReplaceValue(Promoted, "\N", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				  Selected = Table.SelectColumns(Cleaned, {"year"}),
+				  Renamed = Table.RenameColumns(Selected, {{"year", "Season"}}),
+				  Typed = Table.TransformColumnTypes(Renamed, {{"Season", Int64.Type}}, "en-US")
+				in
+				  Typed
+
+	annotation PBI_ResultType = Table
+

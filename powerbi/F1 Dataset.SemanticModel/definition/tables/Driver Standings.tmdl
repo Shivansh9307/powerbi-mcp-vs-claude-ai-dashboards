@@ -1,0 +1,130 @@
+/// Drivers' championship standings after each race. Grain: one row per driver per race. Standings are cumulative, so do not sum across races.
+table 'Driver Standings'
+	lineageTag: 9cb60ef0-bded-4fa7-b2ea-06b732c1ed16
+
+	/// Drivers' championship points after the most recent race in the current selection. For a season this is the final tally. Cumulative, so it is not summed across races.
+	measure 'Latest Driver Points' =
+			VAR _lastRaceDate = CALCULATE(MAXX('Driver Standings', RELATED('Race'[Race Date])), REMOVEFILTERS('Circuit'))
+			RETURN
+			    CALCULATE(SUM('Driver Standings'[Championship Points]), 'Race'[Race Date] = _lastRaceDate, REMOVEFILTERS('Circuit'))
+		formatString: General Number
+		displayFolder: Standings
+		lineageTag: 29b26582-e820-43eb-8f23-6181094a34da
+
+	/// Drivers' championship position after the most recent race in the current selection. For a season this is the final classification (1 = champion).
+	measure 'Latest Driver Position' =
+			VAR _lastRaceDate = CALCULATE(MAXX('Driver Standings', RELATED('Race'[Race Date])), REMOVEFILTERS('Circuit'))
+			RETURN
+			    CALCULATE(MIN('Driver Standings'[Championship Position]), 'Race'[Race Date] = _lastRaceDate, REMOVEFILTERS('Circuit'))
+		formatString: 0
+		displayFolder: Standings
+		lineageTag: 87e9a279-6de6-45d4-afcb-e054b8fc5999
+
+	/// World Drivers' Championships won, counted only for completed seasons (every race on the calendar has results); a season in progress awards no title. With a driver selected it is that driver's titles. With a constructor selected it counts titles won by drivers whose main car that season (most starts) was that constructor.
+	measure 'Driver Titles' =
+			SUMX(
+			    VALUES('Season'[Season]),
+			    VAR _complete = CALCULATE(MAX('Season'[Complete Flag])) = 1
+			    VAR _champ = CALCULATE(MAXX(FILTER(VALUES('Driver'[Driver]), [Latest Driver Position] = 1), 'Driver'[Driver]), REMOVEFILTERS('Constructor'))
+			    VAR _mainTeam =
+			        IF(
+			            ISFILTERED('Constructor'[Constructor]) && NOT ISBLANK(_champ),
+			            MAXX(
+			                TOPN(1, ADDCOLUMNS(ALL('Constructor'[Constructor]), "@n", CALCULATE([Starts], 'Driver'[Driver] = _champ)), [@n], DESC),
+			                'Constructor'[Constructor]
+			            )
+			        )
+			    VAR _inTeam = IF(ISFILTERED('Constructor'[Constructor]), CONTAINS(VALUES('Constructor'[Constructor]), 'Constructor'[Constructor], _mainTeam), TRUE())
+			    RETURN IF(_complete && NOT ISBLANK(_champ) && _inTeam, 1)
+			)
+		formatString: #,##0
+		displayFolder: Standings
+		lineageTag: 45ad5e3b-a036-4ec2-979e-3589d77adc2a
+
+	/// Name of the driver in first place in the drivers' championship after the latest race in the selection. For a finished season this is the champion; for a season in progress the name is followed by (leader) because no title has been awarded yet.
+	measure 'Drivers'' Champion' =
+			VAR _name = MAXX(FILTER(VALUES('Driver'[Driver]), [Latest Driver Position] = 1), 'Driver'[Driver])
+			RETURN IF(NOT ISBLANK(_name), _name & IF(CALCULATE(MIN('Season'[Complete Flag])) = 0, " (leader)", ""))
+		formatString: @
+		displayFolder: Season
+		lineageTag: 31aac1bf-a10f-4453-852c-5424a57a6392
+
+	/// Championship points of the driver in first place after the latest race in the current selection.
+	measure 'Champion Points' = MAXX(FILTER(VALUES('Driver'[Driver]), [Latest Driver Position] = 1), [Latest Driver Points])
+		formatString: General Number
+		displayFolder: Season
+		lineageTag: 2c73ee10-292d-4e5e-aa3e-d21f2f9ac02a
+
+	/// Points gap between first and second in the drivers' championship after the latest race in the current selection. Blank when fewer than two drivers are classified.
+	measure 'Title Margin (points)' =
+			VAR _champion = [Champion Points]
+			VAR _runnerUp = MAXX(FILTER(VALUES('Driver'[Driver]), [Latest Driver Position] = 2), [Latest Driver Points])
+			RETURN
+			    IF(NOT ISBLANK(_runnerUp), _champion - _runnerUp)
+		formatString: General Number
+		displayFolder: Season
+		lineageTag: b4e4a653-8e3b-4df2-932c-a868cbe64be6
+
+	/// Drivers' championship position after the last race of the selected season, ignoring any single round on an axis. Used to keep the top contenders in the points-race chart while it plots every round.
+	measure 'Final Driver Position' = CALCULATE([Latest Driver Position], REMOVEFILTERS('Race'[Round]))
+		formatString: 0
+		displayFolder: Season
+		lineageTag: 92ccaf53-bba3-43bd-a14b-b2308d75f196
+
+	column 'Race Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 789fe84e-d29c-4e45-a1a0-3945f9b33e91
+		summarizeBy: none
+		sourceColumn: Race Id
+
+	column 'Driver Id'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f95a456d-2c7a-4c6c-885e-4b2d8e5c82c1
+		summarizeBy: none
+		sourceColumn: Driver Id
+
+	/// Cumulative championship points for the season after this race.
+	column 'Championship Points'
+		dataType: decimal
+		isHidden
+		formatString: #,##0.##
+		lineageTag: fb91fe12-9471-4891-8973-c97157bd1349
+		summarizeBy: none
+		sourceColumn: Championship Points
+
+	/// Position in the drivers' championship after this race.
+	column 'Championship Position'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: be161823-4db9-482c-b4ae-5b7e50ab8f94
+		summarizeBy: none
+		sourceColumn: Championship Position
+
+	/// Cumulative race wins in the season after this race.
+	column 'Season Wins'
+		dataType: int64
+		formatString: 0
+		lineageTag: 06638471-3cf3-4f02-ad0e-21d98a2b7620
+		summarizeBy: none
+		sourceColumn: Season Wins
+
+	partition 'Driver Standings' = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\driver_standings.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  Cleaned = Table.ReplaceValue(Promoted, "\N", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				  Selected = Table.SelectColumns(Cleaned, {"raceId", "driverId", "points", "position", "wins"}),
+				  Renamed = Table.RenameColumns(Selected, {{"raceId", "Race Id"}, {"driverId", "Driver Id"}, {"points", "Championship Points"}, {"position", "Championship Position"}, {"wins", "Season Wins"}}),
+				  Typed = Table.TransformColumnTypes(Renamed, {{"Race Id", Int64.Type}, {"Driver Id", Int64.Type}, {"Championship Points", Currency.Type}, {"Championship Position", Int64.Type}, {"Season Wins", Int64.Type}}, "en-US")
+				in
+				  Typed
+
+	annotation PBI_ResultType = Table
+

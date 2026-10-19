@@ -1,0 +1,77 @@
+/// Racing circuits that have hosted a Formula 1 Grand Prix. Grain: one row per circuit.
+table Circuit
+	lineageTag: d52074a2-3866-401c-b12a-ed7e75b5aab9
+
+	column 'Circuit Id'
+		dataType: int64
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: fd9bc0da-e4cb-4e00-b64d-231cadee3c23
+		summarizeBy: none
+		sourceColumn: Circuit Id
+
+	/// Official circuit name, e.g. Albert Park Grand Prix Circuit.
+	column Circuit
+		dataType: string
+		lineageTag: 0dff847a-6d9a-42f0-957c-e85bed2e976b
+		summarizeBy: none
+		sourceColumn: Circuit
+
+	/// Nearest city or locality of the circuit.
+	column City
+		dataType: string
+		lineageTag: 79ae5816-b3b3-49e9-9ac8-6d886772ff53
+		dataCategory: City
+		summarizeBy: none
+		sourceColumn: City
+
+	/// Country where the circuit is located.
+	column Country
+		dataType: string
+		lineageTag: 79c7995e-cd48-44b1-b1e9-0f1ca1fa556c
+		dataCategory: Country
+		summarizeBy: none
+		sourceColumn: Country
+
+	/// Latitude in decimal degrees, stored to 4 decimal places.
+	column Latitude
+		dataType: decimal
+		formatString: 0.0000
+		lineageTag: d5d4b000-5693-497c-aa91-a68611258750
+		dataCategory: Latitude
+		summarizeBy: none
+		sourceColumn: Latitude
+
+	/// Longitude in decimal degrees, stored to 4 decimal places.
+	column Longitude
+		dataType: decimal
+		formatString: 0.0000
+		lineageTag: 39a72e2d-277a-4d80-8ae1-29b32731c7ac
+		dataCategory: Longitude
+		summarizeBy: none
+		sourceColumn: Longitude
+
+	/// Circuit altitude in metres above sea level.
+	column Altitude
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 77261916-0ea5-450d-bd0a-7f4429a8fe15
+		summarizeBy: none
+		sourceColumn: Altitude
+
+	partition Circuit = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\circuits.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  Cleaned = Table.ReplaceValue(Promoted, "\N", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				  Selected = Table.SelectColumns(Cleaned, {"circuitId", "name", "location", "country", "lat", "lng", "alt"}),
+				  Renamed = Table.RenameColumns(Selected, {{"circuitId", "Circuit Id"}, {"name", "Circuit"}, {"location", "City"}, {"country", "Country"}, {"lat", "Latitude"}, {"lng", "Longitude"}, {"alt", "Altitude"}}),
+				  Typed = Table.TransformColumnTypes(Renamed, {{"Circuit Id", Int64.Type}, {"Circuit", type text}, {"City", type text}, {"Country", type text}, {"Latitude", Currency.Type}, {"Longitude", Currency.Type}, {"Altitude", Int64.Type}}, "en-US")
+				in
+				  Typed
+
+	annotation PBI_ResultType = Table
+

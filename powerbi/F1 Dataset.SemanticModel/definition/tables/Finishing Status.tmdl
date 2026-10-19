@@ -1,0 +1,40 @@
+/// Reason a driver's race ended, such as Finished, Collision or Engine. Grain: one row per status.
+table 'Finishing Status'
+	lineageTag: 17cad82d-5627-47b1-9f16-4604cea8d128
+
+	column 'Status Id'
+		dataType: int64
+		isHidden
+		isKey
+		formatString: 0
+		lineageTag: 3a318792-2dda-4016-bfc8-dcbc25857ef0
+		summarizeBy: none
+		sourceColumn: Status Id
+
+	/// Why the result ended, e.g. Finished, +1 Lap, Accident, Engine.
+	column Status
+		dataType: string
+		lineageTag: f5e67572-9029-4b3c-b6bb-a96e16174022
+		summarizeBy: none
+		sourceColumn: Status
+
+	/// Status group implied by the status text alone: Finished, Lapped, Mechanical DNF, Accident DNF, Other DNF, Disqualified or Did not start. Used for the lookup table; result rows apply the position-code overrides on top (Race Results Status Group).
+	column 'Default Status Group' = SWITCH(TRUE(), 'Finishing Status'[Status Id] IN {2, 92, 96}, "Disqualified", 'Finishing Status'[Status Id] = 1, "Finished", LEFT('Finishing Status'[Status], 1) = "+", "Lapped", 'Finishing Status'[Status] IN {"Accident", "Collision", "Spun off", "Collision damage", "Damage", "Debris", "Fatal accident"}, "Accident DNF", 'Finishing Status'[Status] IN {"Retired", "Not classified", "Withdrew", "Injured", "Injury", "Driver unwell", "Eye injury", "Illness", "Physical", "Safety", "Safety concerns", "Not restarted"}, "Other DNF", 'Finishing Status'[Status] IN {"Did not qualify", "Did not prequalify", "107% Rule"}, "Did not start", "Mechanical DNF")
+		dataType: string
+		lineageTag: ddde51e5-f943-493c-8e39-0fad5802d9e6
+		summarizeBy: none
+
+	partition 'Finishing Status' = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(#"F1 CSV Folder" & "\status.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				  Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				  Cleaned = Table.ReplaceValue(Promoted, "\N", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				  Renamed = Table.RenameColumns(Cleaned, {{"statusId", "Status Id"}, {"status", "Status"}}),
+				  Typed = Table.TransformColumnTypes(Renamed, {{"Status Id", Int64.Type}, {"Status", type text}}, "en-US")
+				in
+				  Typed
+
+	annotation PBI_ResultType = Table
+

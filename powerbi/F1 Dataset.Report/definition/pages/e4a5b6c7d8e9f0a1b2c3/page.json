@@ -1,0 +1,95 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "e4a5b6c7d8e9f0a1b2c3",
+  "displayName": "Qualifying & Race Performance",
+  "displayOption": "FitToPage",
+  "width": 1920,
+  "height": 1080,
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#0F1115'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspace": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#0F1115'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "f9ff8f99781675d2a7de",
+      "target": "9347f92fa2989e0e775f",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f9ff8f99781675d2a7de",
+      "target": "e7a0c498a13884d9a693",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f9ff8f99781675d2a7de",
+      "target": "4cba9e9ffd3bdd6560f7",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f9ff8f99781675d2a7de",
+      "target": "9c27a241fb46cd4ee341",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f9ff8f99781675d2a7de",
+      "target": "566849a4e0bdcc31e8be",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f9ff8f99781675d2a7de",
+      "target": "b399302c8ec776c66f1b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f9ff8f99781675d2a7de",
+      "target": "0035f0376a974baa1a91",
+      "type": "NoFilter"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+table 'Evolution Metric'
+	lineageTag: da0d1904-309e-4b31-b388-57829dda459a
+
+	column 'Evolution Metric Order'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: be2d787f-8f40-4f5d-9886-1ffb75e89cef
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+	column 'Evolution Metric Fields'
+		dataType: string
+		isHidden
+		lineageTag: 9b6bc3ad-c797-4648-8e80-e78cda8e5219
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Evolution Metric Order'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+	column 'Evolution Metric'
+		dataType: string
+		lineageTag: 06a26fb7-6729-453a-87af-c5b45f6ab897
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Evolution Metric Order'
+
+		relatedColumnDetails
+			groupByColumn: 'Evolution Metric Fields'
+
+	partition 'Evolution Metric' = calculated
+		mode: import
+		source =
+				{
+				    ("Grands Prix", NAMEOF('Race'[# Races Held]), 0),
+				    ("Starts", NAMEOF('Race Results'[Starts]), 1),
+				    ("Drivers", NAMEOF('Race Results'[# Drivers Started]), 2),
+				    ("Constructors", NAMEOF('Race Results'[# Constructors Started]), 3),
+				    ("Wins", NAMEOF('Race Results'[Wins]), 4),
+				    ("Retirement rate", NAMEOF('Race Results'[Retirement Rate]), 5)
+				}
+

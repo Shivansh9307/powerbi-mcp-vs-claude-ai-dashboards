@@ -1,0 +1,90 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "f5b6c7d8e9f0a1b2c3d4",
+  "displayName": "Pit Stop Analysis",
+  "displayOption": "FitToPage",
+  "width": 1920,
+  "height": 1080,
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#0F1115'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspace": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#0F1115'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "0d476253292e8c5348aa",
+      "target": "ada182263e630769032e",
+      "type": "NoFilter"
+    },
+    {
+      "source": "0d476253292e8c5348aa",
+      "target": "7e0499df83e7b6c221e5",
+      "type": "NoFilter"
+    },
+    {
+      "source": "0d476253292e8c5348aa",
+      "target": "0adaffafc3954bb88183",
+      "type": "NoFilter"
+    },
+    {
+      "source": "0d476253292e8c5348aa",
+      "target": "298adb0f237f7f9e4638",
+      "type": "NoFilter"
+    },
+    {
+      "source": "0d476253292e8c5348aa",
+      "target": "ebf8c0b398a909d66c81",
+      "type": "NoFilter"
+    },
+    {
+      "source": "0d476253292e8c5348aa",
+      "target": "b7d833e503b78f8027bc",
+      "type": "NoFilter"
+    }
+  ]
+}

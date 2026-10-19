@@ -1,0 +1,13 @@
+/// Disconnected list of constructors for the second constructor in head-to-head comparisons. It has no relationship, so it filters nothing by itself.
+table 'Compare Constructor'
+	lineageTag: 6bda55b4-e288-42d5-8002-608f4cfaaef1
+
+	column 'Compare Constructor'
+		lineageTag: 8b4b4d4c-fd4f-4929-94ac-833ec8d09e37
+		isNameInferred
+		sourceColumn: [Compare Constructor]
+
+	partition 'Compare Constructor' = calculated
+		mode: import
+		source = SELECTCOLUMNS('Constructor', "Compare Constructor", 'Constructor'[Constructor])
+

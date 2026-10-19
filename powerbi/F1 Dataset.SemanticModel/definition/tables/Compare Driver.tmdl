@@ -1,0 +1,13 @@
+/// Disconnected list of drivers for the second driver in head-to-head comparisons. It has no relationship, so it filters nothing by itself.
+table 'Compare Driver'
+	lineageTag: abc84d26-dffb-4a12-bdd7-39689c1c679f
+
+	column 'Compare Driver'
+		lineageTag: a410ed6e-0719-4c1c-af17-fc234c9667a0
+		isNameInferred
+		sourceColumn: [Compare Driver]
+
+	partition 'Compare Driver' = calculated
+		mode: import
+		source = SELECTCOLUMNS('Driver', "Compare Driver", 'Driver'[Driver])
+
