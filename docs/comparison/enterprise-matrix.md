@@ -19,17 +19,16 @@ a report in front of a business: who can see what, how it refreshes, how it ship
 | A team that must govern, secure and refresh a report | Power BI | Semantic model, security roles, scheduled refresh, deployment and audit exist as features |
 | An analyst extending the metrics | Power BI | Change a measure once; every report on the model follows |
 | An executive who wants a link they can open today | Artifact | No licence, no workspace; a signed-in account and a link |
-| A hiring manager judging engineering practice | Power BI plus this repo | Model as code, lint, independent recomputation, CI |
 
 ## 1. Data and model
 | Requirement | Power BI report | Claude artifact | Evidence |
 |---|---|---|---|
-| Where the logic lives | 200 DAX measures in a semantic model (TMDL), reusable by other reports and Excel | About 2,300 lines of bespoke JavaScript (`artifact/src`) and a Python prep step | T (both inspected) |
+| Where the logic lives | 169 DAX measures in a semantic model (TMDL), reusable by other reports and Excel | 2,289 lines of bespoke JavaScript (`artifact/src/*.js`, `wc -l`) and a Python prep step | T (both inspected) |
 | Metric definitions visible to consumers | Description on every measure; lineage in the model | Info icon on each metric; `DATA_DICTIONARY.md` | T |
 | Change a definition | Edit one measure; every visual and report on the model changes | Edit JavaScript, rerun tests, republish | A |
 | Data volume | 885,381 lap rows loaded as 883,402; VertiPaq compressed cache about 5.7 MB at the last save | Laps pre-aggregated to one row per race and driver in the prep step; 17 CSVs, 2.9 MB in total | T (sizes measured) |
 | Grain flexibility | Any lap-level question the model supports | Only what the prep step kept | A |
-| Reconciliation tests | `f1evo anchors` (7 numbers) and `f1evo data check` (14 files), outside Power BI; DAX checks at 19 filter states | 13 Node tests (`artifact/tests`), all passing, including "every page renders for 8 filter states without NaN" | T |
+| Reconciliation tests | `f1evo anchors` (7 numbers) and `f1evo data check` (14 files), outside Power BI; DAX checks at 19 filter states | 13 Node tests defined in `artifact/tests/reconcile.test.js`, including "every page renders for 8 filter states without NaN"; not run in the latest review (no raw CSVs available) | T (`f1evo`, run during the build); A (Node tests, not re-run) |
 
 ## 2. Connectivity and refresh
 | Requirement | Power BI report | Claude artifact | Evidence |
@@ -46,7 +45,7 @@ a report in front of a business: who can see what, how it refreshes, how it ship
 |---|---|---|---|
 | Row-level security | Roles with DAX filters, including dynamic RLS from the signed-in user, on the semantic model. **Not configured** in this project (public sports data) | No row-level concept. Everyone who can open the artifact receives all of its data in the browser | D (Power BI); A (artifact) |
 | Object-level or column security | Available on the model | None | D |
-| Who can open it | Workspace roles, apps, per-item permissions, sharing links; B2B guests | Private by default; shared by link with the people you choose in claude.ai | D |
+| Who can open it | Workspace roles, apps, per-item permissions, sharing links; B2B guests | Viewable only by people signed in to a Claude account: a signed-out visitor sees an empty dashboard and "Sign in to see this artifact's data" (observed 2026-10-19). Other sharing options are the platform's | T (sign-in wall); D (sharing options) |
 | Sensitivity labels, DLP, Purview lineage | Available in a tenant that enables them | Not applicable | D |
 | Certification and endorsement | Promoted or certified item in a workspace | None | D |
 | Audit and usage | Activity log and usage metrics for published content | Not exposed in what I inspected | D, N |
@@ -60,7 +59,7 @@ a report in front of a business: who can see what, how it refreshes, how it ship
 | Version control | PBIP: model as TMDL, report as PBIR JSON; diffable and lintable; Git integration is a documented feature | Source files in a folder; the platform keeps versions of the published page | T (files linted and committed in this repo); D |
 | CI/CD | Deployment pipelines (dev, test, prod) and Fabric Git integration are available; **not exercised** here | Republish the page | D, N |
 | Automated checks | `f1evo pbip check` in CI: documentation on every measure, no broken field references, no private paths | `node tests/reconcile.test.js` | T |
-| Publishing | A workspace item; "Publish" from Desktop or deploy from Git; needs a licence for viewers on a shared workspace | A link; viewers need to be signed in with access | D (Power BI); T (I opened the artifact link) |
+| Publishing | A workspace item; "Publish" from Desktop or deploy from Git; needs a licence for viewers on a shared workspace | A link; viewers must be signed in to a Claude account, so it cannot serve as a demo for readers without an account (sign-in wall observed 2026-10-19) | D (Power BI); T (sign-in wall) |
 | Bus factor | Another BI developer can open the PBIP and read standard artefacts | Another developer must read the custom JavaScript | A |
 | Edit by non-developers | Power BI Desktop, Analyze in Excel, the model's measures | Ask an AI or a developer to edit code | A |
 | AI authoring experience | Needs a toolchain (modeling MCP, CLI, Desktop) and guardrails; Desktop stalled twice (`../lessons-desktop-stalls.md`) | Fast and forgiving; one file, one preview | T (this project) |

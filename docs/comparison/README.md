@@ -3,6 +3,11 @@
 Two builds of the same dashboard from the same data, both improved with *Storytelling with Data*. This folder holds the
 comparison; start here.
 
+**Access rule (observed 2026-10-19):** the Claude artifact can be viewed only by people signed in to a Claude account. Signed-out
+visitors see an empty dashboard ("Nothing on this dashboard yet") and "Sign in to see this artifact's data". It cannot serve as a demo
+for readers without an account, so the screenshots in `../images/artifact/` are the evidence for readers without an account. Those screenshots are a
+local render of the same source, checked against the published artifact ([`how-it-was-measured.md`](how-it-was-measured.md)).
+
 | Document | Answers |
 |---|---|
 | [page-by-page.md](page-by-page.md) | Which page tells its story better, and why. Screenshots side by side for all eight pages |

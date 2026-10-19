@@ -2,12 +2,6 @@
 table Season
 	lineageTag: 86603a4a-2891-42cf-a1c2-1ace64e916c5
 
-	/// Number of championship seasons in the current selection.
-	measure '# Seasons' = COUNTROWS('Season')
-		formatString: #,##0
-		displayFolder: Counts
-		lineageTag: 7d381df4-4358-4ab2-85a7-480f5ecfe7bb
-
 	/// Championship year, e.g. 2021.
 	column Season
 		dataType: int64

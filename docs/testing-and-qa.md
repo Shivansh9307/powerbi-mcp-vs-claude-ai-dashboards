@@ -14,9 +14,8 @@ Four layers, from cheapest to most human. Each says what it proves and what it d
 uv run f1evo pbip check powerbi
 ```
 ```
-Project: 25 tables, 159 columns, 200 measures, 28 relationships, 11 pages, 268 visuals
-WARNING MDL004: visible measure is not used anywhere [...]
-0 errors, 27 warnings
+Project: 25 tables, 159 columns, 169 measures, 28 relationships, 11 pages, 268 visuals
+0 errors, 0 warnings
 ```
 The checks that exist because of mistakes I made:
 - **REP005** (a visual references a missing measure). Renaming a measure the open report used caused the first Desktop
@@ -27,9 +26,11 @@ The checks that exist because of mistakes I made:
 - **PBIP003** (`$schema` missing): Power BI Desktop strips it on save; Fabric rejects PBIR files without it.
 - **REP003** (no alt text): a warning for any non-decorative visual; currently none.
 
-**The 27 warnings** are measures nothing uses (neither a visual nor another measure). Five are the insight sentences left over
-when the Overview takeaways were removed; the rest are helpers (for example lap-time and pit-stop aggregates) kept as building
-blocks. They are listed so they can be deleted deliberately; I chose not to delete them in the same change as a redesign.
+**Unused measures.** After the redesign the lint reported 27 warnings (MDL004): measures nothing used, neither a visual nor
+another measure. Five were insight sentences left over when the Overview takeaways were removed; the rest were helpers such as
+lap-time and pit-stop aggregates. They were kept through the redesign on purpose and deleted afterwards in three steps of nine,
+re-linting after each. Deleting `Headline Insight` left four more insight measures it alone used, so those went too: 31 measures
+removed (200 to 169), none referenced by a visual, another measure or the report generator. The lint now reports 0 warnings.
 
 ## Layer 2: independent recomputation
 `f1evo` re-implements the definitions in `data-model.md` in pandas, reading the raw files directly. If Power BI and Python

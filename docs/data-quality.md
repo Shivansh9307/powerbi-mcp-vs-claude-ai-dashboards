@@ -16,7 +16,7 @@ numbers. Neither was "the right one" until the definitions were agreed.
 The measures were **correct for what they calculated**. The labels were wrong, and a season in progress was treated as a
 finished one. The rest of this page is what that cost to untangle.
 
-## Phase 0 audit: defects found before building the other six pages
+## Phase 0 audit: defects found before building the other six pages (rows 1 to 7 of the [defect log](defect-log.md))
 | # | Finding | Evidence | Fix |
 |---|---|---|---|
 | 1 | Drivers and Constructors counted every result row | 865 / 213; 1,714 of 27,612 rows have position code `F` or `W` | `Status Group` and `Started` columns; `# Drivers Started` and `# Constructors Started` count starters: 790 / 199 |
@@ -27,9 +27,10 @@ finished one. The rest of this page is what that cost to untangle.
 | 6 | Pit Stops and Lap Times had no constructor link | The constructor slicer could not filter them | `Constructor Id` merged from the race result; relationships added |
 | 7 | Qualifying times were text only | Q1 to Q3 held as "m:ss.000" | Millisecond columns and a best-time column added |
 
-Findings 8 to 14 came during the build of pages 2 to 8 and are in `ai-workflow.md` (a misleading negative pit-time gap, a
-coverage heat map that hid missing tables, head-to-head wins that showed blank instead of zero, and a measure that errored
-on a Boolean `MAX`).
+Findings 8 to 14 came during the build of pages 2 to 8: a misleading negative pit-time gap, a coverage heat map that hid
+missing tables, head-to-head wins that showed blank instead of zero, and a measure that errored on a Boolean `MAX`. Only
+those four are documented. All defects, de-duplicated and numbered 1 to 19 with the gap in the record stated, are in
+[`defect-log.md`](defect-log.md).
 
 ## How the Data Quality page works (page 8)
 Nothing on it is typed. Row counts, duplicate keys and null cells come from Power Query profiling of the raw files

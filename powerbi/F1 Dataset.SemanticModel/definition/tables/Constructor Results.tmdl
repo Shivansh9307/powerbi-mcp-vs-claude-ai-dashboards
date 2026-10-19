@@ -2,12 +2,6 @@
 table 'Constructor Results'
 	lineageTag: 3f7afb72-51e1-4402-aac4-0794291827d1
 
-	/// Points a constructor scored across its drivers in the selected races.
-	measure 'Constructor Points' = SUM('Constructor Results'[Points])
-		formatString: General Number
-		displayFolder: Points
-		lineageTag: d62ae117-c150-4798-827c-a50a4039e53c
-
 	column 'Race Id'
 		dataType: int64
 		isHidden

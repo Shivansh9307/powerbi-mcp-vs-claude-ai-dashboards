@@ -34,12 +34,6 @@ table 'Constructor Standings'
 		displayFolder: Season
 		lineageTag: b1ee9b16-5f0e-4631-a420-62480da18cfc
 
-	/// Championship points of the constructor in first place after the latest race in the current selection.
-	measure 'Constructor Champion Points' = MAXX(FILTER(VALUES('Constructor'[Constructor]), [Latest Constructor Position] = 1), [Latest Constructor Points])
-		formatString: General Number
-		displayFolder: Season
-		lineageTag: 06c54e82-f65f-402a-9e7a-1b46c7e7d23b
-
 	column 'Race Id'
 		dataType: int64
 		isHidden

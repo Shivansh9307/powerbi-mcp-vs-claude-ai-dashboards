@@ -138,7 +138,7 @@ def test_quoted_names_with_apostrophes_parse(tmp_path: Path) -> None:
 def test_the_real_project_has_no_errors() -> None:
     report = check_project(REPO / "powerbi")
     assert report.errors == [], [str(e) for e in report.errors]
-    assert report.stats["measures"] >= 200
+    assert report.stats["measures"] >= 169
     assert report.stats["pages"] == 11  # 8 report pages + 3 tooltip pages
 
 

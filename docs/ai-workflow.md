@@ -39,14 +39,15 @@ Small change sets (about ten objects), a save checkpoint after each, never a sec
 
 ## What I delegated
 - Reading the raw CSVs and producing the audit (`data-quality.md`).
-- Writing 200 measures with descriptions and display folders, TMDL-correct.
+- Writing 200 measures with descriptions and display folders, TMDL-correct (31 unused ones were removed later; 169 remain).
 - Generating pages and visuals from code, restyling them from a design-token file, regenerating after each review.
 - Running the same measure under 19 filter states (all seasons, 1950, 2021, one driver, two drivers, an impossible
   combination, a season with no pit data) and tabulating expected against actual.
 - Extracting the principles from a 330-page book and mapping each to a change in this report.
 
 ## What the default AI output got wrong
-These are the findings that justify a human reviewer. All are fixed and documented.
+These are the findings that justify a human reviewer. All are fixed and documented. The complete, de-duplicated list of 19
+defects is in [`defect-log.md`](defect-log.md); this table is the subset that shows what a default AI build gets wrong.
 
 | What looked fine | What was wrong | Found by |
 |---|---|---|

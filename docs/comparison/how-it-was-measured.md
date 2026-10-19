@@ -8,6 +8,13 @@
 - **Scope:** the same eight pages and product name. Where one build has a view the other lacks, the page-by-page document says so.
 - **Design brief:** both were revised against *Storytelling with Data* after a first version existed.
 
+## Who can open the artifact (observed 2026-10-19)
+The published artifact can be viewed **only by people signed in to a Claude account**. A signed-out visitor sees an empty
+dashboard ("Nothing on this dashboard yet") with "Sign in to see this artifact's data". It therefore cannot serve as a demo
+for readers without an account, and the screenshots in `docs/images/artifact/` are the evidence for readers without an account. Link wording used
+throughout this repository: *Claude artifact (view requires being signed in to a Claude account)*: <https://claude.ai/artifact/MP2BvVVFSqQuxa1ojT968A>.
+This rule was confirmed by the owner and observed on the date above; claude.ai can change it.
+
 ## How the screenshots were taken
 | | Power BI | Claude artifact |
 |---|---|---|
@@ -36,11 +43,11 @@ disagree with the reason rather than the number.
 ## What was tested, and what was not
 **Tested here:** the PBIP builds and validates (0 errors), every measure has a description and display folder, every
 visual points at an existing field, 19 filter states return sensible measures, the Power BI numbers are reproduced in
-Python, the artifact's 13 tests pass, the artifact renders on 11 states, the published artifact opens and matches.
+Python, the published artifact opens in a signed-in browser and matches the local render, and a signed-out visitor sees the sign-in wall. The artifact's 13 Node tests are defined in `artifact/tests/reconcile.test.js` but were **not run in the latest review** (they need the raw CSVs); an earlier run is the basis for the claim that they passed.
 
 **Not tested:** row-level security on either side; publishing the Power BI report to a workspace; scheduled refresh or a
-gateway; deployment pipelines; load or concurrency; screen-reader use; phone layouts; the artifact's behaviour for a user
-without access. Rows in `enterprise-matrix.md` that depend on these carry the label **D** (documented) or **N**.
+gateway; deployment pipelines; load or concurrency; screen-reader use; phone layouts; the artifact's behaviour for a signed-in user
+who has not been given access (only the signed-out wall was observed). Rows in `enterprise-matrix.md` that depend on these carry the label **D** (documented) or **N**.
 
 ## Bias to account for
 - I built the Power BI report and know its failure modes better than the artifact's. I tried to read the artifact the way a

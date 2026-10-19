@@ -3,7 +3,7 @@
 Status: accepted
 
 ## Context
-A model needs a place for 200 measures.
+A model needs a place for its measures (200 when this was decided; 169 after the unused ones were removed).
 
 ## Decision
 Measures live on the fact table whose data they describe (141 on Race Results, 12 on Pit Stops, and so on), grouped by display folder (Counts, Rates, Headlines, Action titles, Highlight colours, Data quality, Helpers).

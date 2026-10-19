@@ -1,7 +1,7 @@
 # DAX patterns that carry the report
 
 Eight patterns, each quoted from the model (`powerbi/F1 Dataset.SemanticModel/definition/tables/`), each with the problem
-it solves and the mistake it replaced. The conventions behind all 200 measures:
+it solves and the mistake it replaced. The conventions behind all 169 measures:
 
 - Every measure has a `///` description and a display folder (the lint in `f1evo pbip check` enforces it).
 - Ratios use `DIVIDE`, never `/`. Missing stays blank; it is never coerced to zero.
