@@ -1,6 +1,6 @@
 # F1 Evolution: two AI dashboards, Power BI (MCP) vs Claude Artifacts, one human review
 
-**Same data, same brief, two AI-built dashboards. What separates a demo from a decision-grade report is one human review: definitions, tests and storytelling. This repository is the evidence.**
+**Same data, same scope, two AI-built dashboards. What separates a demo from a trustworthy report is one human review: definitions, tests and storytelling. "Trustworthy" here means numbers verified and definitions documented, not production-deployed. This repository is the evidence.**
 
 ![Before and after: the same Overview, before and after applying Storytelling with Data](docs/images/before_after_overview.png)
 
@@ -113,13 +113,15 @@ The redesign found six more bugs, because it forced every headline to be tested 
 ## Power BI vs the Claude artifact
 | Question | Power BI report | Claude artifact |
 |---|---|---|
-| Which tells its story better on first read? | Close | **Slightly ahead**: opens on content, Big Idea plus "So what", annotations |
-| Storytelling rubric (my scoring, 0 to 10) | 8 | 8 |
-| Where does the logic live? | A governed model of 200 measures | About 2,300 lines of JavaScript over uploaded CSVs |
+| Which tells its story better on first read? | Close | **Slightly ahead**: opens on content, Big Idea plus "So what", annotations (equal scores, different strengths: see [`docs/comparison/`](docs/comparison/README.md)) |
+| Storytelling rubric (my scoring, 0 to 10) | 8 | 8 (equal scores, different strengths: see [`docs/comparison/`](docs/comparison/README.md)) |
+| Where does the logic live? | A governed model of 200 measures | 2,289 lines of JavaScript (`artifact/src/*.js`) over uploaded CSVs |
 | Row-level security | Available; **not configured here** | No concept: the viewer receives the data |
 | Refresh | Model refresh; schedule needs a gateway or cloud source (not exercised) | Fixed snapshot; re-upload to update |
-| Version control and CI | PBIP files, lint in CI | Source files and 13 Node tests |
+| Version control and CI | PBIP files, lint in CI | Source files and 13 Node tests (defined in `artifact/tests/reconcile.test.js`; not run here) |
 | Cost of sharing | Licences for viewers on shared content (check current pricing) | A link to people with access |
+
+The artifact came first and set the scope and definitions, so matching numbers between the two builds are not independent confirmation; the independent check is `f1evo anchors`, which reads the raw files.
 
 Page-by-page screenshots, 40 enterprise rows labelled *tested*, *documented* or *not exercised*, and what I could not test are in
 [`docs/comparison/`](docs/comparison/README.md).

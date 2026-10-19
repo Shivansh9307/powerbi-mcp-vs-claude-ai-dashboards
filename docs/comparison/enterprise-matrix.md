@@ -19,17 +19,16 @@ a report in front of a business: who can see what, how it refreshes, how it ship
 | A team that must govern, secure and refresh a report | Power BI | Semantic model, security roles, scheduled refresh, deployment and audit exist as features |
 | An analyst extending the metrics | Power BI | Change a measure once; every report on the model follows |
 | An executive who wants a link they can open today | Artifact | No licence, no workspace; a signed-in account and a link |
-| A hiring manager judging engineering practice | Power BI plus this repo | Model as code, lint, independent recomputation, CI |
 
 ## 1. Data and model
 | Requirement | Power BI report | Claude artifact | Evidence |
 |---|---|---|---|
-| Where the logic lives | 200 DAX measures in a semantic model (TMDL), reusable by other reports and Excel | About 2,300 lines of bespoke JavaScript (`artifact/src`) and a Python prep step | T (both inspected) |
+| Where the logic lives | 200 DAX measures in a semantic model (TMDL), reusable by other reports and Excel | 2,289 lines of bespoke JavaScript (`artifact/src/*.js`, `wc -l`) and a Python prep step | T (both inspected) |
 | Metric definitions visible to consumers | Description on every measure; lineage in the model | Info icon on each metric; `DATA_DICTIONARY.md` | T |
 | Change a definition | Edit one measure; every visual and report on the model changes | Edit JavaScript, rerun tests, republish | A |
 | Data volume | 885,381 lap rows loaded as 883,402; VertiPaq compressed cache about 5.7 MB at the last save | Laps pre-aggregated to one row per race and driver in the prep step; 17 CSVs, 2.9 MB in total | T (sizes measured) |
 | Grain flexibility | Any lap-level question the model supports | Only what the prep step kept | A |
-| Reconciliation tests | `f1evo anchors` (7 numbers) and `f1evo data check` (14 files), outside Power BI; DAX checks at 19 filter states | 13 Node tests (`artifact/tests`), all passing, including "every page renders for 8 filter states without NaN" | T |
+| Reconciliation tests | `f1evo anchors` (7 numbers) and `f1evo data check` (14 files), outside Power BI; DAX checks at 19 filter states | 13 Node tests defined in `artifact/tests/reconcile.test.js`, including "every page renders for 8 filter states without NaN"; not run in the latest review (no raw CSVs available) | T (`f1evo`, run during the build); A (Node tests, not re-run) |
 
 ## 2. Connectivity and refresh
 | Requirement | Power BI report | Claude artifact | Evidence |
