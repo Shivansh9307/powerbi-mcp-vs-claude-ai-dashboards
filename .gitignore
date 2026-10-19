@@ -34,6 +34,7 @@ node_modules/
 
 # --- Reference material that must not be redistributed ---
 *.pdf
+!docs/demo/f1-evolution-report-pages.pdf
 
 # --- Scratch, screenshots in progress, OS and editor noise ---
 scratch/
