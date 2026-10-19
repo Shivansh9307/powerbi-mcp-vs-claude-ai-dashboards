@@ -29,7 +29,7 @@ counted as a finished season). Finding that took a second implementation and a h
 review is for. [`docs/data-quality.md`](docs/data-quality.md)
 
 ## What this demonstrates
-- **DAX and semantic modelling:** a star schema with 200 documented measures, definitions written down and tested. [`powerbi/`](powerbi/), [`docs/data-model.md`](docs/data-model.md)
+- **DAX and semantic modelling:** a star schema with 169 documented measures, definitions written down and tested. [`powerbi/`](powerbi/), [`docs/data-model.md`](docs/data-model.md)
 - **Model as code, Git and CI:** the model (TMDL) and report (PBIR) are text, linted on every push. [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 - **Independent verification:** seven headline numbers recomputed from the raw CSVs in pandas, plus a project lint. [`src/f1evo/`](src/f1evo/), [`tests/`](tests/)
 - **Data storytelling:** an AI default measured against a book's rules, with before and after. [`docs/storytelling-pass.md`](docs/storytelling-pass.md)
@@ -38,10 +38,10 @@ review is for. [`docs/data-quality.md`](docs/data-quality.md)
 
 | | |
 |---|---|
-| **The model** | 25 tables, 28 relationships, **200 documented DAX measures**, Import mode, stored as TMDL text |
+| **The model** | 25 tables, 28 relationships, **169 documented DAX measures**, Import mode, stored as TMDL text |
 | **The report** | 8 pages, 3 tooltip pages, **268 visuals**, generated from code, drill-through, synced slicers |
 | **The numbers** | 7 headline figures reproduced in Python from the raw CSVs: 1,166 races, 790 drivers, 199 constructors, 78 circuits, 1,169 wins, 76 + 68 titles |
-| **The checks** | 61 pytest tests, strict mypy, ruff, and a Power BI project lint with **0 errors** (27 warnings, listed under Limits) |
+| **The checks** | 61 pytest tests, strict mypy, ruff, and a Power BI project lint with **0 errors** (0 warnings: the 27 unused measures were removed in this pass) |
 | **The defects** | 19 logged defects: 7 from the audit, 3 from the page build, 1 from QA, 8 from the storytelling pass ([`docs/defect-log.md`](docs/defect-log.md)) |
 
 ## Read this in three minutes
@@ -56,7 +56,7 @@ review is for. [`docs/data-quality.md`](docs/data-quality.md)
 |---|---|---|
 | Which tells its story better on first read? | Close | **Slightly ahead**: opens on content, Big Idea plus "So what", annotations (equal scores, different strengths: see [`docs/comparison/`](docs/comparison/README.md)) |
 | Storytelling rubric (my scoring, 0 to 10) | 8 | 8 (equal scores, different strengths: see [`docs/comparison/`](docs/comparison/README.md)) |
-| Where does the logic live? | A governed model of 200 measures | 2,289 lines of JavaScript (`artifact/src/*.js`) over uploaded CSVs |
+| Where does the logic live? | A governed model of 169 measures | 2,289 lines of JavaScript (`artifact/src/*.js`) over uploaded CSVs |
 | Row-level security | Available; **not configured here** | No concept: the viewer receives the data |
 | Refresh | Model refresh; schedule needs a gateway or cloud source (not exercised) | Fixed snapshot; re-upload to update |
 | Version control and CI | PBIP files, lint in CI | Source files and 13 Node tests (defined in `artifact/tests/reconcile.test.js`; not run here) |
@@ -97,7 +97,7 @@ The redesign found six more bugs and two design findings, because it forced ever
 ## How it is built
 ```mermaid
 flowchart LR
-    CSV[14 raw CSV files] --> PQ[Power Query] --> MODEL[Semantic model<br/>TMDL, 200 measures] --> REPORT[Report<br/>PBIR, 268 visuals]
+    CSV[14 raw CSV files] --> PQ[Power Query] --> MODEL[Semantic model<br/>TMDL, 169 measures] --> REPORT[Report<br/>PBIR, 268 visuals]
     GEN[Node generator] -- writes --> REPORT
     PY[f1evo - Python] -- recomputes and lints --> MODEL
     PY -- reads --> CSV
@@ -130,7 +130,7 @@ ranks that behave in Top N, field-parameter metric switches with dynamic formats
 
 ## Building with Claude Code and the Power BI authoring MCP
 I treated the AI as a fast junior engineer and kept the definitions, the taste and the numbers.
-- **Delegated:** reading the data and writing the audit; 200 measures with descriptions; generating pages from code; running every
+- **Delegated:** reading the data and writing the audit; 200 measures written with descriptions (31 unused ones removed later, 169 remain); generating pages from code; running every
   measure under 19 filter states; extracting the book's rules.
 - **Kept:** what a "driver" and a "title" are; the page scope; the colour rule; what to leave off the page; what not to ship.
 - **Guardrails** after Desktop hung twice: Desktop is a viewer, the model is authored as files and validated offline, change sets
@@ -169,12 +169,13 @@ then Refresh. Do not edit the model while it refreshes.
 table; deployment pipelines or Fabric Git integration; a phone layout; a screen-reader pass; a paginated report; cross-page
 behaviour of sync slicers and drill-through is loaded without errors but not scripted.
 
-**Known debt:** 27 measures are unused (five insight sentences are left over from the redesign; the lint lists them). Constructor
+**Known debt:** the lint reports 0 warnings after 31 unused measures were removed (200 to 169; five insight sentences from the
+redesign, their headline measure and lap and pit-stop helpers among them). Constructor
 renames are not merged because the source has no lineage field. Pit-lane time is entry to exit, not the stationary stop.
 The Race & Circuit Explorer opens empty until a race is chosen, and two Overview tables clip their last row at the default size.
 
 **Next, in order:** default the Race Explorer to the latest race; direct labels on trend peaks; one sentence of field context in
-KPI cards; a row-level-security demonstration by team; incremental refresh on laps; delete the unused measures.
+KPI cards; a row-level-security demonstration by team; incremental refresh on laps.
 
 ## Licence and attribution
 Code and documentation: MIT ([`LICENSE`](LICENSE)). The data is not included and has its own terms (Ergast data, CC BY-NC-SA; this

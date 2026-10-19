@@ -39,7 +39,7 @@ Small change sets (about ten objects), a save checkpoint after each, never a sec
 
 ## What I delegated
 - Reading the raw CSVs and producing the audit (`data-quality.md`).
-- Writing 200 measures with descriptions and display folders, TMDL-correct.
+- Writing 200 measures with descriptions and display folders, TMDL-correct (31 unused ones were removed later; 169 remain).
 - Generating pages and visuals from code, restyling them from a design-token file, regenerating after each review.
 - Running the same measure under 19 filter states (all seasons, 1950, 2021, one driver, two drivers, an impossible
   combination, a season with no pit data) and tabulating expected against actual.

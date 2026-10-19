@@ -23,7 +23,7 @@ a report in front of a business: who can see what, how it refreshes, how it ship
 ## 1. Data and model
 | Requirement | Power BI report | Claude artifact | Evidence |
 |---|---|---|---|
-| Where the logic lives | 200 DAX measures in a semantic model (TMDL), reusable by other reports and Excel | 2,289 lines of bespoke JavaScript (`artifact/src/*.js`, `wc -l`) and a Python prep step | T (both inspected) |
+| Where the logic lives | 169 DAX measures in a semantic model (TMDL), reusable by other reports and Excel | 2,289 lines of bespoke JavaScript (`artifact/src/*.js`, `wc -l`) and a Python prep step | T (both inspected) |
 | Metric definitions visible to consumers | Description on every measure; lineage in the model | Info icon on each metric; `DATA_DICTIONARY.md` | T |
 | Change a definition | Edit one measure; every visual and report on the model changes | Edit JavaScript, rerun tests, republish | A |
 | Data volume | 885,381 lap rows loaded as 883,402; VertiPaq compressed cache about 5.7 MB at the last save | Laps pre-aggregated to one row per race and driver in the prep step; 17 CSVs, 2.9 MB in total | T (sizes measured) |

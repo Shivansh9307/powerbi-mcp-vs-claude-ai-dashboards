@@ -1,6 +1,6 @@
 # Data model
 
-A star schema over Formula 1 results, 1950 to 2026: **25 tables, 159 columns, 28 relationships, 200 measures**, Import mode,
+A star schema over Formula 1 results, 1950 to 2026: **25 tables, 159 columns, 28 relationships, 169 measures**, Import mode,
 built as TMDL text files (`powerbi/F1 Dataset.SemanticModel/definition/`). Every number on every page comes from a measure;
 nothing is typed into a visual.
 
@@ -45,22 +45,21 @@ Constructor Results (28 relationships in total; the diagram shows the pattern, n
 | Disconnected pickers | Compare Driver, Compare Constructor | A second selection for head-to-head without filtering the main page |
 | Data-quality row sets | DQ Tables, DQ Columns, DQ Raw Profile, Constructor Families | Names only; every number comes from a measure or from Power Query profiling of the raw files |
 
-Measures live mostly on Race Results (141 of 200) because it is the grain most questions are asked at; the rest sit on
-the table whose data they describe (Pit Stops 12, Driver Standings 7, Qualifying 6, and so on). A dedicated measures
+Measures live mostly on Race Results (122 of 169) because it is the grain most questions are asked at; the rest sit on
+the table whose data they describe (Pit Stops 8, Driver Standings 6, Qualifying 6, and so on). A dedicated measures
 table is the common alternative; the trade-off is in `decisions/ADR-0003-measures-live-on-fact-tables.md`.
 
-Measure inventory by display folder (all 200 have a description; 188 are visible, 12 are hidden helpers):
+Measure inventory by display folder (all 169 have a description; 157 are visible, 12 are hidden helpers):
 
 | Folder | # | Folder | # | Folder | # |
 |---|---:|---|---:|---|---:|
-| Data quality | 24 | Head to head | 10 | Coverage | 8 |
-| Counts | 22 | Highlight colours | 10 | Standings | 6 |
-| Messages | 22 | Insights | 9 | Season | 6 |
-| Rates | 16 | Points | 8 | Pit lane | 6 |
-| Action titles | 12 | Headlines | 8 | Timing | 5 |
-| Helpers | 11 | Switches | 5 | Qualifying | 4 |
-| Race pace | 3 | Labels | 2 | Career | 2 |
-| Competitive balance | 1 | | | | |
+| Data quality | 24 | Coverage | 8 | Qualifying | 4 |
+| Counts | 18 | Head to head | 8 | Season | 4 |
+| Messages | 18 | Headlines | 8 | Race pace | 3 |
+| Rates | 13 | Points | 7 | Career | 2 |
+| Action titles | 12 | Standings | 6 | Labels | 2 |
+| Helpers | 11 | Pit lane | 5 | Competitive balance | 1 |
+| Highlight colours | 10 | Switches | 5 |  |  |
 
 ## Definitions the report depends on
 These are the rules that decide whether the numbers are right. The Python tool `f1evo anchors` re-implements them

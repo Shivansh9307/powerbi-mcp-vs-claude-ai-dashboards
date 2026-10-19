@@ -295,7 +295,8 @@ let PAGE_IDS = {};
 const setPageIds = (ids) => { PAGE_IDS = ids; };
 
 function shell(p, o) {
-  const { title, headline = 'Headline Insight', filters = true, back = false } = o;
+  const { title, headline, filters = true, back = false } = o;
+  if (!headline) throw new Error(`shell: page "${title}" needs a headline measure`);
   const idx = NAV.findIndex(([k]) => k === p.name);
   const next = idx >= 0 && idx < NAV.length - 1 ? NAV[idx + 1] : null;
   // left rail: hairline divider instead of a panel

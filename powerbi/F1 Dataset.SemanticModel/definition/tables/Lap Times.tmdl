@@ -2,24 +2,6 @@
 table 'Lap Times'
 	lineageTag: 819c086f-0648-409c-88e2-65545dd85dae
 
-	/// Number of timed laps in the current selection. Lap timing is available from 1996 onwards.
-	measure '# Laps Recorded' = COUNTROWS('Lap Times')
-		formatString: #,##0
-		displayFolder: Counts
-		lineageTag: 68c888f0-512b-49fa-bcd4-51e3b43f839b
-
-	/// Mean lap time in seconds. Includes slow laps such as safety car and in/out laps, so compare within a single race for the most meaningful result.
-	measure 'Average Lap Time (s)' = DIVIDE(AVERAGE('Lap Times'[Lap Time (ms)]), 1000)
-		formatString: 0.000
-		displayFolder: Timing
-		lineageTag: 70a84e0d-01f6-404e-a6df-042348f4198e
-
-	/// Quickest single lap in seconds within the current selection.
-	measure 'Fastest Recorded Lap (s)' = DIVIDE(MIN('Lap Times'[Lap Time (ms)]), 1000)
-		formatString: 0.000
-		displayFolder: Timing
-		lineageTag: 7eaccdb8-159e-4d66-8283-54196fdb1720
-
 	column 'Race Id'
 		dataType: int64
 		isHidden

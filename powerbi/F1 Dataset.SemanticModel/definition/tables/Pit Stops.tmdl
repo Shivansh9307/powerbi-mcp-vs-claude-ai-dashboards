@@ -8,35 +8,11 @@ table 'Pit Stops'
 		displayFolder: Counts
 		lineageTag: 46da511b-2a73-4d0a-9632-5cc6f0eb07f5
 
-	/// Mean pit lane time in seconds, from pit entry to exit. Long stops during red flags skew this upward, so see Median Pit Stop Duration (s).
-	measure 'Average Pit Stop Duration (s)' = DIVIDE(AVERAGE('Pit Stops'[Pit Stop Duration (ms)]), 1000)
-		formatString: 0.000
-		displayFolder: Timing
-		lineageTag: 29aab904-dd85-4a4c-a22d-58f041a804b3
-
-	/// Median pit lane time in seconds. Preferred over the average because red-flag stops are extreme outliers.
-	measure 'Median Pit Stop Duration (s)' = DIVIDE(MEDIAN('Pit Stops'[Pit Stop Duration (ms)]), 1000)
-		formatString: 0.000
-		displayFolder: Timing
-		lineageTag: 6f912a98-5478-4d78-afc3-67d886c3764e
-
-	/// Shortest pit lane time in seconds within the current selection.
-	measure 'Fastest Pit Stop (s)' = DIVIDE(MIN('Pit Stops'[Pit Stop Duration (ms)]), 1000)
-		formatString: 0.000
-		displayFolder: Timing
-		lineageTag: 330aadb3-fb35-47e8-8c3e-08b37c129e01
-
 	/// Median time in the pit lane from entry to exit, over stops of 60 seconds or less. This is pit-lane time, not the stationary tyre change, which is not in the data.
 	measure 'Typical Pit Time (s)' = DIVIDE(CALCULATE(MEDIAN('Pit Stops'[Pit Stop Duration (ms)]), 'Pit Stops'[Pit Stop Duration (ms)] <= 60000), 1000)
 		formatString: 0.0
 		displayFolder: Pit lane
 		lineageTag: 4700e3b1-0f76-4352-b72c-02ce38af0b40
-
-	/// Stops longer than 60 seconds in the pit lane, such as repairs or red-flag stops. Left out of typical time.
-	measure 'Extended Stops' = CALCULATE(COUNTROWS('Pit Stops'), 'Pit Stops'[Pit Stop Duration (ms)] > 60000)
-		formatString: #,##0
-		displayFolder: Pit lane
-		lineageTag: 86a6bdca-c461-432d-b807-c9106214eaee
 
 	/// Starts in Grands Prix that have pit-stop records. Denominator for stops per car, so seasons without pit data do not dilute it.
 	measure 'Cars in Races With Pit Data' = CALCULATE([Starts], FILTER(VALUES('Race'[Race Id]), CALCULATE(COUNTROWS('Pit Stops')) > 0))

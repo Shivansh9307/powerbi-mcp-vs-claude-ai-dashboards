@@ -7,7 +7,7 @@ flowchart LR
         CSV[14 raw CSV files<br/>Ergast layout]
     end
     subgraph Power_BI_project[powerbi/ - the PBIP]
-        PQ[Power Query M<br/>one partition per table] --> MODEL[Semantic model - TMDL<br/>25 tables, 200 measures]
+        PQ[Power Query M<br/>one partition per table] --> MODEL[Semantic model - TMDL<br/>25 tables, 169 measures]
         MODEL --> REPORT[Report - PBIR<br/>8 pages, 3 tooltips, 268 visuals]
     end
     subgraph Tooling

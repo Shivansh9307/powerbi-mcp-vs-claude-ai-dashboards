@@ -65,12 +65,6 @@ table 'Driver Standings'
 		displayFolder: Season
 		lineageTag: b4e4a653-8e3b-4df2-932c-a868cbe64be6
 
-	/// Drivers' championship position after the last race of the selected season, ignoring any single round on an axis. Used to keep the top contenders in the points-race chart while it plots every round.
-	measure 'Final Driver Position' = CALCULATE([Latest Driver Position], REMOVEFILTERS('Race'[Round]))
-		formatString: 0
-		displayFolder: Season
-		lineageTag: 92ccaf53-bba3-43bd-a14b-b2308d75f196
-
 	column 'Race Id'
 		dataType: int64
 		isHidden

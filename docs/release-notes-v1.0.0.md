@@ -5,7 +5,7 @@ history to summarise; the changes after it are in the credibility pass that foll
 
 ## What is in it
 - A Power BI project (PBIP: TMDL model plus PBIR report) on Formula 1 results, 1950 to 2026: 25 tables, 28 relationships,
-  200 documented measures, 8 pages, 3 tooltip pages, 268 visuals.
+  169 documented measures (0 lint warnings), 8 pages, 3 tooltip pages, 268 visuals.
 - `f1evo`, a Python package that re-computes seven headline numbers from the raw CSVs and lints the Power BI project, with
   pytest, strict mypy, ruff and CI (`.github/workflows/ci.yml`).
 - The Claude artifact source used as the comparison baseline (`artifact/`).
