@@ -10,8 +10,8 @@
 
 ## Who can open the artifact (observed 2026-10-19)
 The published artifact can be viewed **only by people signed in to a Claude account**. A signed-out visitor sees an empty
-dashboard ("Nothing on this dashboard yet") with "Sign in to see this artifact's data". It is therefore not a public live
-demo, and the screenshots in `docs/images/artifact/` are the evidence for readers without an account. Link wording used
+dashboard ("Nothing on this dashboard yet") with "Sign in to see this artifact's data". It therefore cannot serve as a demo
+for readers without an account, and the screenshots in `docs/images/artifact/` are the evidence for readers without an account. Link wording used
 throughout this repository: *Claude artifact (view requires being signed in to a Claude account)*: <https://claude.ai/artifact/MP2BvVVFSqQuxa1ojT968A>.
 This rule was confirmed by the owner and observed on the date above; claude.ai can change it.
 

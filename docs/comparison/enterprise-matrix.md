@@ -45,7 +45,7 @@ a report in front of a business: who can see what, how it refreshes, how it ship
 |---|---|---|---|
 | Row-level security | Roles with DAX filters, including dynamic RLS from the signed-in user, on the semantic model. **Not configured** in this project (public sports data) | No row-level concept. Everyone who can open the artifact receives all of its data in the browser | D (Power BI); A (artifact) |
 | Object-level or column security | Available on the model | None | D |
-| Who can open it | Workspace roles, apps, per-item permissions, sharing links; B2B guests | Private by default; shared by link with the people you choose in claude.ai | D |
+| Who can open it | Workspace roles, apps, per-item permissions, sharing links; B2B guests | Viewable only by people signed in to a Claude account: a signed-out visitor sees an empty dashboard and "Sign in to see this artifact's data" (observed 2026-10-19). Other sharing options are the platform's | T (sign-in wall); D (sharing options) |
 | Sensitivity labels, DLP, Purview lineage | Available in a tenant that enables them | Not applicable | D |
 | Certification and endorsement | Promoted or certified item in a workspace | None | D |
 | Audit and usage | Activity log and usage metrics for published content | Not exposed in what I inspected | D, N |
@@ -59,7 +59,7 @@ a report in front of a business: who can see what, how it refreshes, how it ship
 | Version control | PBIP: model as TMDL, report as PBIR JSON; diffable and lintable; Git integration is a documented feature | Source files in a folder; the platform keeps versions of the published page | T (files linted and committed in this repo); D |
 | CI/CD | Deployment pipelines (dev, test, prod) and Fabric Git integration are available; **not exercised** here | Republish the page | D, N |
 | Automated checks | `f1evo pbip check` in CI: documentation on every measure, no broken field references, no private paths | `node tests/reconcile.test.js` | T |
-| Publishing | A workspace item; "Publish" from Desktop or deploy from Git; needs a licence for viewers on a shared workspace | A link; viewers need to be signed in with access | D (Power BI); T (I opened the artifact link) |
+| Publishing | A workspace item; "Publish" from Desktop or deploy from Git; needs a licence for viewers on a shared workspace | A link; viewers must be signed in to a Claude account, so it cannot serve as a demo for readers without an account (sign-in wall observed 2026-10-19) | D (Power BI); T (sign-in wall) |
 | Bus factor | Another BI developer can open the PBIP and read standard artefacts | Another developer must read the custom JavaScript | A |
 | Edit by non-developers | Power BI Desktop, Analyze in Excel, the model's measures | Ask an AI or a developer to edit code | A |
 | AI authoring experience | Needs a toolchain (modeling MCP, CLI, Desktop) and guardrails; Desktop stalled twice (`../lessons-desktop-stalls.md`) | Fast and forgiving; one file, one preview | T (this project) |
