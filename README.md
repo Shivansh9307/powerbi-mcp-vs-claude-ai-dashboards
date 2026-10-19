@@ -41,7 +41,7 @@ review is for. [`docs/data-quality.md`](docs/data-quality.md)
 | **The model** | 25 tables, 28 relationships, **169 documented DAX measures**, Import mode, stored as TMDL text |
 | **The report** | 8 pages, 3 tooltip pages, **268 visuals**, generated from code, drill-through, synced slicers |
 | **The numbers** | 7 headline figures reproduced in Python from the raw CSVs: 1,166 races, 790 drivers, 199 constructors, 78 circuits, 1,169 wins, 76 + 68 titles |
-| **The checks** | 61 pytest tests, strict mypy, ruff, and a Power BI project lint with **0 errors** (0 warnings: the 27 unused measures were removed in this pass) |
+| **The checks** | 64 pytest tests (one needs the raw CSVs), strict mypy, ruff, and a Power BI project lint with **0 errors** (0 warnings, after 31 unused measures were removed) |
 | **The defects** | 19 logged defects: 7 from the audit, 3 from the page build, 1 from QA, 8 from the storytelling pass ([`docs/defect-log.md`](docs/defect-log.md)) |
 
 ## Read this in three minutes
@@ -149,7 +149,7 @@ uv sync
 uv run f1evo pbip check powerbi                      # lint the Power BI project, no data needed
 uv run f1evo anchors --raw data/raw                  # recompute the 7 headline numbers from your CSVs
 uv run f1evo data check --raw data/raw               # profile the files against the Data Quality page
-uv run pytest                                        # 61 tests (set F1_RAW_DIR to include the real-data test)
+uv run pytest                                        # 64 tests collected (set F1_RAW_DIR to include the real-data test, otherwise it is skipped)
 ```
 To open the report: put the CSVs in `data/raw`, open `powerbi/F1 Dataset.pbip`, set the **F1 CSV Folder** parameter to that path,
 then Refresh. Do not edit the model while it refreshes.
@@ -174,7 +174,7 @@ redesign, their headline measure and lap and pit-stop helpers among them). Const
 renames are not merged because the source has no lineage field. Pit-lane time is entry to exit, not the stationary stop.
 The Race & Circuit Explorer opens empty until a race is chosen, and two Overview tables clip their last row at the default size.
 
-**Next, in order:** default the Race Explorer to the latest race; direct labels on trend peaks; one sentence of field context in
+**Next, in order** ([`docs/ROADMAP-NEXT.md`](docs/ROADMAP-NEXT.md)): default the Race Explorer to the latest race; direct labels on trend peaks; one sentence of field context in
 KPI cards; a row-level-security demonstration by team; incremental refresh on laps.
 
 ## Licence and attribution

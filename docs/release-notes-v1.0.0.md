@@ -13,9 +13,10 @@ history to summarise; the changes after it are in the credibility pass that foll
   testing and QA, and a page-by-page and enterprise comparison with every row labelled tested, documented or not exercised.
 
 ## Corrections made after the first publish (credibility pass)
-- "Same brief" is now "same scope": the artifact came first and set the scope and definitions, so matching numbers are not
-  independent confirmation; `f1evo anchors` is.
-- "Decision-grade" is now "trustworthy", defined as numbers verified and definitions documented, not production-deployed.
+- The claim that both builds followed one brief is now "same scope": the artifact came first and set the scope and definitions, so
+  matching numbers are not independent confirmation; `f1evo anchors` is.
+- The top-line quality label is now "trustworthy", defined as numbers verified and definitions documented, not
+  production-deployed.
 - The artifact link is described accurately: viewing requires being signed in to a Claude account.
 - One reconciled defect log replaces counts that did not add up across documents.
 - Dataset source and licence terms (Ergast CC BY-NC-SA, non-commercial) are stated.
