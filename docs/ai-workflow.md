@@ -46,7 +46,8 @@ Small change sets (about ten objects), a save checkpoint after each, never a sec
 - Extracting the principles from a 330-page book and mapping each to a change in this report.
 
 ## What the default AI output got wrong
-These are the findings that justify a human reviewer. All are fixed and documented.
+These are the findings that justify a human reviewer. All are fixed and documented. The complete, de-duplicated list of 19
+defects is in [`defect-log.md`](defect-log.md); this table is the subset that shows what a default AI build gets wrong.
 
 | What looked fine | What was wrong | Found by |
 |---|---|---|

@@ -15,7 +15,7 @@ the two dashboards page by page and against enterprise requirements (governance,
 | **The report** | 8 pages, 3 tooltip pages, **268 visuals**, generated from code, drill-through, synced slicers |
 | **The numbers** | 7 headline figures reproduced in Python from the raw CSVs: 1,166 races, 790 drivers, 199 constructors, 78 circuits, 1,169 wins, 76 + 68 titles |
 | **The checks** | 59 pytest tests, strict mypy, ruff, and a Power BI project lint with **0 errors** |
-| **The defects** | 7 data and metric defects found before the build, 6 more found by testing the redesign (all documented) |
+| **The defects** | 19 logged defects: 7 from the audit, 3 from the page build, 1 from QA, 8 from the storytelling pass ([`docs/defect-log.md`](docs/defect-log.md)) |
 
 ## Read this in three minutes
 1. **The first build was wrong in ways a stakeholder would catch.** It showed 865 drivers (790 started a race) and 146 titles (it counted the season in progress as champions). The DAX was right; the definitions were not. [`docs/data-quality.md`](docs/data-quality.md)
@@ -107,7 +107,7 @@ I treated the AI as a fast junior engineer and kept the definitions, the taste a
 | Avoid diagonal text, red/green | Tilted labels, green Pass | Horizontal labels, neutral status |
 | Order and a call to action | Five takeaway lines | A "Next" button on each page |
 
-The redesign found six more bugs, because it forced every headline to be tested under every filter state.
+The redesign found six more bugs and two design findings, because it forced every headline to be tested under every filter state ([`docs/defect-log.md`](docs/defect-log.md)).
 [`docs/storytelling-pass.md`](docs/storytelling-pass.md)
 
 ## Power BI vs the Claude artifact
