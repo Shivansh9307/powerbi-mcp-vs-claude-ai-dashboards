@@ -3,7 +3,7 @@
 The report reads 14 Ergast-layout Formula 1 CSV files. They are **not in this repository** (size, and the data licence
 in `NOTICE.md`). Put your copy in `data/raw/` (the folder is gitignored).
 
-**Source of the copy used here:** the Kaggle dataset *Formula 1 Race Data*
+**Source of the copy used here:** the Kaggle dataset *Formula 1 Race Data* by James Trotman
 (<https://www.kaggle.com/datasets/jtrotman/formula-1-race-data>), which follows the Ergast layout. Ergast data is published
 under CC BY-NC-SA 3.0; this repository is non-commercial. The artifact's derived CSVs can be read by anyone who can open the
 published artifact, so the same terms apply to them. See [`NOTICE.md`](../NOTICE.md).

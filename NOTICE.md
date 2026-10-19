@@ -6,7 +6,7 @@ The report reads Formula 1 World Championship results in the Ergast CSV layout (
 check your copy. The Ergast data has been published under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0
 licence; check the terms of the copy you download before you reuse or redistribute it.
 
-The copy used here came from the Kaggle dataset *Formula 1 Race Data* (author `jtrotman` in the URL):
+The copy used here came from the Kaggle dataset *Formula 1 Race Data* by James Trotman (`jtrotman` on Kaggle):
 <https://www.kaggle.com/datasets/jtrotman/formula-1-race-data>. The Ergast attribution and the CC BY-NC-SA terms
 (attribution, non-commercial, share-alike) apply to it. **This repository is non-commercial.**
 
